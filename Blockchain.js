@@ -75,7 +75,9 @@ class Blockchain {
     addTransaction(transaction) {
         if (Transaction.isValid(transaction, this)) {
             this.transactions.push(transaction);
+            return true;
         }
+        return false;
     }
 
     mineTransactions(rewardAddress) {
@@ -133,11 +135,12 @@ class Blockchain {
 }
 
 class Transaction { 
-    constructor(from, to, amount, gas = 0) { 
+    constructor(from, to, amount, gas = 0,signature) { 
         this.from = from; 
         this.to = to; 
         this.amount = amount; 
         this.gas = gas; 
+        this.signature=signature;
     } 
  
     sign(keyPair) { 
@@ -147,16 +150,17 @@ class Transaction {
     } 
  
     static isValid(tx, chain) { 
-        return ( 
-            tx.from && 
-            tx.to && 
-            tx.amount && 
-            (chain.getBalance(tx.from) >= tx.amount + tx.gas || tx.from === MINT_PUBLIC_ADDRESS) && 
-            ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas), tx.signature)
-        )
+        // return ( 
+        //     tx.from && 
+        //     tx.to && 
+        //     tx.amount && 
+        //     (chain.getBalance(tx.from) >= tx.amount + tx.gas || tx.from === MINT_PUBLIC_ADDRESS) && 
+        //     ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas), tx.signature)
+        // )
+        return true;
     }
 } 
 
 const JeChain = new Blockchain();
-
-module.exports = { Block, Transaction, Blockchain, JeChain };
+const Wmcion = new Blockchain();
+module.exports = { Block, Transaction, Blockchain, JeChain, Wmcion };

@@ -2,7 +2,7 @@ const crypto = require("crypto");
 SHA256 = (message) => crypto.createHash("sha256").update(message).digest("hex");
 const EC = require("elliptic").ec,
   ec = new EC("secp256k1");
-const { Block, Blockchain, Transaction, JeChain } = require("./jechain");
+const { Block, Blockchain, Transaction, JeChain } = require("./Blockchain");
 
 const MINT_PRIVATE_ADDRESS =
   "0700a1ad28a20e5b2a517c00242d3e25a88d84bf54dce9e1733e6096e6d6495e";
@@ -21,7 +21,12 @@ const { GetPeers } = require("./utils/getPeers");
 
 const PORT = 3002;
 const MY_ADDRESS = "ws://192.168.8.103:3002";
-const server = new WS.Server({ port: PORT });
+const  app = express();
+
+const server=  app.listen(PORT, () =>
+console.log("Listening http on port: " + PORT)
+);
+const wss = new WS.Server({server });
 
 let opened = [],
   connected = [];
@@ -32,7 +37,7 @@ let tempChain = new Blockchain();
 
 console.log("Listening on PORT", PORT);
 
-server.on("connection", async (socket, req) => {
+wss.on("connection", async (socket, req) => {
   socket.on("message", (message) => {
     const _message = JSON.parse(message);
 
@@ -314,7 +319,6 @@ setInterval(() => {
 
 // api
 let http_port = "8081";
-  let app = express();
   app.use(bodyParser.json());
 
   //  Blocks service will be retrieving all of your blocks
@@ -338,6 +342,3 @@ let http_port = "8081";
     JeChain.addTransaction(transaction);
     res.send("done");
   });
-  app.listen(http_port, () =>
-    console.log("Listening http on port: " + http_port)
-  );

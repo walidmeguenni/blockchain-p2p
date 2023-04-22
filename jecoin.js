@@ -2,7 +2,7 @@ const crypto = require("crypto");
 SHA256 = (message) => crypto.createHash("sha256").update(message).digest("hex");
 const EC = require("elliptic").ec,
   ec = new EC("secp256k1");
-const { Block, Blockchain, Transaction, JeChain } = require("./jechain");
+const { Block, Blockchain, Transaction, JeChain } = require("./Blockchain");
 
 const MINT_PRIVATE_ADDRESS =
   "0700a1ad28a20e5b2a517c00242d3e25a88d84bf54dce9e1733e6096e6d6495e";
@@ -41,7 +41,7 @@ server.on("connection", async (socket, req) => {
     switch (_message.type) {
       case "TYPE_REPLACE_CHAIN":
         const [newBlock, newDiff] = _message.data;
-        console.log(newBlock)
+        console.log(newBlock);
         const ourTx = [...JeChain.transactions.map((tx) => JSON.stringify(tx))];
         const theirTx = [
           ...newBlock.data
@@ -304,36 +304,87 @@ startApp();
 //   JeChain.addTransaction(transaction);
 // }, 50);
 
-setInterval(() => {
-  console.log(opened);
-  console.log(JeChain);
-}, 5000);
+// setInterval(() => {
+//   console.log(opened);
+//   console.log(JeChain);
+// }, 5000);
 // api
 let http_port = "8080";
-  let app = express();
-  app.use(bodyParser.json());
+let app = express();
+app.use(bodyParser.json());
+const events = require("events");
+const eventEmitter = new events.EventEmitter();
+let mining = false;
+let miningInterval;
+//  Blocks service will be retrieving all of your blocks
+app.get("/blocks", (req, res) => {
+  const blocks = JeChain.getBlocks();
+  res.status(201).json({ Blockchain: blocks });
+});
+app.post("/balance", (req, res) => {
+  const balance = JeChain.getBalance(req.address);
+  res.status(202).json({ balance: balance });
+});
+app.post("/sendtransaction", (req, res) => {
+  const { from, to, amount, gas } = req.body;
+  // const transaction = new Transaction(
+  //   publicKey,
+  //   "046856ec283a5ecbd040cd71383a5e6f6ed90ed2d7e8e599dbb5891c13dff26f2941229d9b7301edf19c5aec052177fac4231bb2515cb59b1b34aea5c06acdef43",
+  //   200,
+  //   10
+  // );
+  const transaction = new Transaction(from, to, amount, gas);
+  transaction.sign(keyPair);
 
-  //  Blocks service will be retrieving all of your blocks
-  app.get("/blocks", (req, res) => {
-    const blocks = JeChain.getBlocks();
-    res.json(blocks);
-  });
+  sendMessage(produceMessage("TYPE_CREATE_TRANSACTION", transaction));
 
-  app.get("/sendtransaction", (req, res) => {
-    const transaction = new Transaction(
-      publicKey,
-      "046856ec283a5ecbd040cd71383a5e6f6ed90ed2d7e8e599dbb5891c13dff26f2941229d9b7301edf19c5aec052177fac4231bb2515cb59b1b34aea5c06acdef43",
-      200,
-      10
-    );
+  JeChain.addTransaction(transaction);
+  res
+    .status(202)
+    .json({ _message: "transaction send", transaction: transaction });
+});
 
-    transaction.sign(keyPair);
 
-    sendMessage(produceMessage("TYPE_CREATE_TRANSACTION", transaction));
+// Handler function for "startMining" event
+const startMiningHandler = () => {
+  if (!mining) {
+    console.log("Mining started");
+    mining = true;
+    miningInterval = setInterval(async() => {
+      // Add your mining logic here
+      console.log("Mining...");
+    }, 1000);
+  }
+};
 
-    JeChain.addTransaction(transaction);
-    res.send("done");
-  });
-  app.listen(http_port, () =>
-    console.log("Listening http on port: " + http_port)
-  );
+// Handler function for "stopMining" event
+const stopMiningHandler = () => {
+  if (mining) {
+    console.log("Mining stopped");
+    mining = false;
+    clearInterval(miningInterval);
+  }
+};
+
+// Attach event handlers to event emitter
+eventEmitter.on("startMining", startMiningHandler);
+eventEmitter.on("stopMining", stopMiningHandler);
+
+
+app.get("/startMining", (req, res) => {
+  eventEmitter.emit("startMining");
+  res.send("Mining started");
+});
+
+// Route to stop mining
+app.get("/stopMining", (req, res) => {
+  eventEmitter.emit("stopMining");
+  res.send("Mining stopped");
+});
+
+
+
+app.listen(http_port, () =>
+  console.log("Listening http on port: " + http_port)
+);
+
