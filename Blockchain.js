@@ -158,5 +158,6 @@ class Transaction {
 } 
 
 const JeChain = new Blockchain();
+const Wmcion = new Blockchain();
 
-module.exports = { Block, Transaction, Blockchain, JeChain };
+module.exports = { Block, Transaction, Blockchain, JeChain, Wmcion };
