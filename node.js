@@ -8,7 +8,10 @@ const crypto = require("crypto"),
     crypto.createHash("sha256").update(message).digest("hex");
 
 const { Transaction, Wmcion } = require("./Blockchain");
-const { wallet } = require("./utils/wallet");
+const { wallet } = require("./wallet");
+const { getAddress } = require("./utils/getAddress");
+
+const MY_ADDRESS = getAddress();
 
 let mining = false;
 let miningInterval;
