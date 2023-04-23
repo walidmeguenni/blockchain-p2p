@@ -19,6 +19,8 @@ const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
 const PORT = 3000;
+let opened = [];
+let connected = [];
 const server = app.listen(PORT, () => {
   console.log(`server listening on port http://localhost:${PORT}`);
 });
@@ -60,6 +62,41 @@ ws.on("connection", (socket, req) => {
     console.log("WebSocket connection closed");
   });
 });
+
+//-------------------------connectToPeers-----------------------------//
+async function connect(address) {
+  if (connectedPeers.includes(address) || address === MY_ADDRESS) {
+    return; // already connected
+  }
+
+  try {
+    const socket = new WebSocket(address);
+
+    await new Promise((resolve, reject) => {
+      socket.addEventListener("open", resolve);
+      socket.addEventListener("error", reject);
+      socket.addEventListener("close", reject);
+    });
+
+    // Send handshake message
+    const message = produceMessage("TYPE_HANDSHAKE", [MY_ADDRESS, ...connectedPeers]);
+    socket.send(JSON.stringify(message));
+
+    // Store socket and add to list of connected peers
+    const peer = { address, socket };
+    openedPeers.push(peer);
+    connectedPeers.push(address);
+
+    // Handle socket closing
+    socket.addEventListener("close", () => {
+      openedPeers.splice(openedPeers.indexOf(peer), 1);
+      connectedPeers.splice(connectedPeers.indexOf(address), 1);
+    });
+  } catch (error) {
+    console.error(`Failed to connect to peer at ${address}: ${error}`);
+  }
+}
+
 // ------------------------Functions Helper---------------------------//
 function produceMessage(type, data) {
   return { type, data };
@@ -71,7 +108,7 @@ function sendMessage(message) {
   });
 }
 
-// Handler function for "startMining" event
+//------------------------- Handler function for "startMining" event-----------//
 const startMiningHandler = (walletAddress) => {
   if (!mining) {
     console.log("Mining started");
@@ -84,7 +121,7 @@ const startMiningHandler = (walletAddress) => {
   }
 };
 
-// Handler function for "stopMining" event
+// ------------------------Handler function for "stopMining" event-------------//
 const stopMiningHandler = () => {
   if (mining) {
     console.log("Mining stopped");
@@ -93,12 +130,12 @@ const stopMiningHandler = () => {
   }
 };
 
-// Attach event handlers to event emitter
+//------------------------- Attach event handlers to event emitter---------------//
 eventEmitter.on("startMining", startMiningHandler);
 eventEmitter.on("stopMining", stopMiningHandler);
 
-// API endpoint to add a new transaction
-
+//--------------------------API endpoint to add a new transaction--------------------//
+// Route to send transaction
 app.post("/transaction/send", (req, res) => {
   const { from, to, amount, gas, privateKey } = req.body;
   const keyPair = ec.keyFromPrivate(privateKey);
@@ -122,26 +159,27 @@ app.post("/transaction/send", (req, res) => {
     res.status(400).send("keys not match ");
   }
 });
-
+// Route to get transactions
 app.get("/transaction/all",(req,res)=>{
   const transactions = Wmcion.transactions;
   res.status(201).json({ Transactions: transactions });
 })
+// Route to get blocks
 app.get("/blocks", (req, res) => {
   const blocks = Wmcion.getBlocks();
   res.status(201).json({ Blockchain: blocks });
 });
-
+// Route to get balance
 app.get("/balance", (req, res) => {
   const balance = Wmcion.getBalance(req.address);
   res.status(202).json({ balance: balance });
 });
-
+// Route to create account
 app.get("/wallet/create", (req, res) => {
   const account = wallet.create();
   res.status(202).json({ wallet: account });
 });
-
+// Route to get accounts
 app.get("/wallet/accounts", (req, res) => {
   const accounts = wallet.getWallet();
   res.status(202).json({ accounts: accounts });
@@ -159,3 +197,6 @@ app.get("/mine/stop", (req, res) => {
   eventEmitter.emit("stopMining");
   res.send("Mining stopped");
 });
+
+//---------------------uncaughtException---------------------------//
+process.on("uncaughtException", (err) => console.log(err));
