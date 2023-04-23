@@ -19,8 +19,8 @@ const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
 const PORT = 3000;
-let opened = [];
-let connected = [];
+let openedPeers = [];
+let connectedPeers = [];
 const server = app.listen(PORT, () => {
   console.log(`server listening on port http://localhost:${PORT}`);
 });
@@ -103,7 +103,7 @@ function produceMessage(type, data) {
 }
 
 function sendMessage(message) {
-  opened.forEach((node) => {
+  openedPeers.forEach((node) => {
     node.socket.send(JSON.stringify(message));
   });
 }
