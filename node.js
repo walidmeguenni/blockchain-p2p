@@ -11,7 +11,6 @@ const { Transaction, Wmcion } = require("./Blockchain");
 const { wallet } = require("./wallet");
 const { getAddress } = require("./utils/getAddress");
 
-const MY_ADDRESS = getAddress();
 
 let mining = false;
 let miningInterval;
@@ -22,6 +21,8 @@ const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
 const PORT = 3000;
+const MY_ADDRESS = getAddress(PORT);
+
 let openedPeers = [];
 let connectedPeers = [];
 const server = app.listen(PORT, () => {
