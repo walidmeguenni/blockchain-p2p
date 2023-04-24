@@ -36,23 +36,38 @@ ws.on("connection", (socket, req) => {
   console.log("A new WebSocket connection was established");
 
   socket.on("message", (message) => {
-    console.log(`Received message: ${message}`);
+    //console.log(`Received message: ${message}`);
+    const senderIp =(req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace(/^::ffff:/, "");
 
     // Handle incoming messages from the client
-    const data = JSON.parse(message);
-   
-    switch (data.type) {
+    const {type, data} = JSON.parse(message);
+    
+    switch (type) {
       case "NEW_BLOCK":
-        // Handle new block message
+        // Parse the new block object from the message payload
+        const [newBlock, newDiff] = data;
+        // Verify that the block is valid
+        if (!Wmcion.isValidNewBlock(newBlock)) {
+          console.log("Received an invalid new block from peer");
+          return;
+        }
+        // Add the new block to your blockchain
+        Wmcion.addBlock(newBlock);
+        // Broadcast the new block message to all other peers
+        broadcast(produceMessage("NEW_BLOCK", newBlock));
+
+        console.log(`Received and added a new block from peer ${senderIp}`);
         break;
       case "CREATE_NEW_TRANSACTION":
         // Handle new transaction message
+        Wmcion.addTransaction(data);
+        broadcast("TRANSACTION", transaction);
         break;
       case "GET_CHAIN":
         // Handle request for blockchain
         break;
       default:
-        console.log(`Unknown message type: ${data.type}`);
+        console.log(`Unknown message type: ${type}`);
     }
   });
 
@@ -86,6 +101,9 @@ async function connect(address) {
     const message = produceMessage("TYPE_HANDSHAKE", [MY_ADDRESS, ...connectedPeers]);
     socket.send(JSON.stringify(message));
 
+    // Send Request chain 
+    const requestChain = { type: "REQUEST_CHAIN"};
+    socket.send(JSON.stringify(requestChain));
     // Store socket and add to list of connected peers
     const peer = { address, socket };
     openedPeers.push(peer);
@@ -106,7 +124,7 @@ function produceMessage(type, data) {
   return { type, data };
 }
 
-function sendMessage(message) {
+function broadcast(message) {
   openedPeers.forEach((node) => {
     node.socket.send(JSON.stringify(message));
   });
@@ -120,6 +138,11 @@ const startMiningHandler = (walletAddress) => {
     miningInterval = setInterval(async () => {
       // Add your mining logic here
       Wmcion.mineTransactions(walletAddress);
+
+      broadcast(produceMessage("NEW_BLOCK", [
+        Wmcion.getLastBlock(),
+        Wmcion.difficulty
+      ]));
       console.log("Mining...");
     }, 1000);
   }
@@ -151,7 +174,7 @@ app.post("/transaction/send", (req, res) => {
     const transaction = new Transaction(from, to, amount, gas, signature);
     const status =Wmcion.addTransaction(transaction);
     if (status) {
-      //sendMessage(produceMessage("CREATE_NEW_TRANSACTION", transaction));
+      broadcast(produceMessage("CREATE_NEW_TRANSACTION", transaction));
       res
         .status(202)
         .json({ _message: "transaction send", transaction: transaction });
