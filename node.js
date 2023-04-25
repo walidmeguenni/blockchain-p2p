@@ -7,8 +7,12 @@ const crypto = require("crypto"),
   SHA256 = (message) =>
     crypto.createHash("sha256").update(message).digest("hex");
 
-const { Transaction, Wmcion } = require("./Blockchain");
-const { wallet } = require("./wallet");
+/**core component*/
+const {  Blockchain, Wmcion } = require("./core/main");
+const {  Transaction } = require("./core/Transaction");
+const {  Block } = require("./core/Block");
+const { wallet } = require("./core/wallet");
+
 const { getAddress } = require("./utils/getAddress");
 
 
@@ -47,7 +51,7 @@ ws.on("connection", (socket, req) => {
         // Parse the new block object from the message payload
         const [newBlock, newDiff] = data;
         // Verify that the block is valid
-        if (!Wmcion.isValidNewBlock(newBlock)) {
+        if (!Block.isValidNewBlock(newBlock, newDiff)) {
           console.log("Received an invalid new block from peer");
           return;
         }
@@ -60,11 +64,27 @@ ws.on("connection", (socket, req) => {
         break;
       case "CREATE_NEW_TRANSACTION":
         // Handle new transaction message
-        Wmcion.addTransaction(data);
-        broadcast("TRANSACTION", transaction);
+        const transaction = Wmcion.addTransaction(data);
         break;
       case "GET_CHAIN":
         // Handle request for blockchain
+        const chain = Wmcion.chain;
+        const message = produceMessage("REPALCE_TYPE_CHAIN", chain);
+        ws.send(JSON.stringify(message));
+        break;
+      case "REPALCE_TYPE_CHAIN":
+        const newChain = message.data[0];
+        if (Blockchain.isValidChain(newChain) && newChain.length > Wmcion.chain.length) {
+          Wmcion.chain = newChain;
+          broadcast("CHAIN", Wmcion.chain);
+        }
+        break;
+      case "CHAIN":
+        const receivedChain = data;
+        if (isValidChain(receivedChain) && receivedChain.length > Wmcion.chain.length) {
+          console.log("Received blockchain is valid. Replacing current blockchain with received blockchain.");
+          Wmcion.chain = newChain;
+        }
         break;
       default:
         console.log(`Unknown message type: ${type}`);
