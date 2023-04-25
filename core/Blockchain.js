@@ -132,6 +132,24 @@ class Blockchain {
 
         return true;
     }
+
+    isValidNewBlock(newBlock, previousBlock) {
+        if (previousBlock.index + 1 !== newBlock.index) {
+          console.log("invalid index");
+          return false;
+        } else if (previousBlock.hash !== newBlock.prevHash) {
+          console.log("invalid previoushash");
+          return false;
+        } else if (Block.getHash(newBlock) !== newBlock.hash) {
+          console.log("invalid hash");
+          return false;
+        } else if (!this.isValidProof(newBlock, previousBlock)) {
+          console.log("invalid proof-of-work");
+          return false;
+        }
+        return true;
+      }
+    
 }
 
 class Transaction { 
