@@ -14,6 +14,7 @@ const {  Block } = require("./core/Block");
 const { wallet } = require("./core/wallet");
 
 const { getAddress } = require("./utils/getAddress");
+const { getPeers } = require("./utils/getPeers");
 
 
 let mining = false;
@@ -24,11 +25,13 @@ const eventEmitter = new events.EventEmitter();
 const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
-const PORT = 3000;
+const PORT = 3001;
 const MY_ADDRESS = getAddress(PORT);
-
 let openedPeers = [];
 let connectedPeers = [];
+
+//--------------------------------Start server---------------------//
+
 const server = app.listen(PORT, () => {
   console.log(`server listening on port http://localhost:${PORT}`);
 });
@@ -47,6 +50,10 @@ ws.on("connection", (socket, req) => {
     const {type, data} = JSON.parse(message);
     
     switch (type) {
+      case "TYPE_HANDSHAKE":
+        const nodes = data;
+        nodes.forEach((node) => connect(node));
+        break;
       case "NEW_BLOCK":
         // Parse the new block object from the message payload
         const [newBlock, newDiff] = data;
@@ -138,6 +145,19 @@ async function connect(address) {
     console.error(`Failed to connect to peer at ${address}: ${error}`);
   }
 }
+
+//-------------------------Connect Peers------------------------------//
+async function startApp() {
+  try {
+    const PEERS = await getPeers("3001");
+    console.log("PEERS:", PEERS);
+    await PEERS.forEach((peer) => connect(peer));
+    // start the rest of your application here
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+startApp();
 
 // ------------------------Functions Helper---------------------------//
 function produceMessage(type, data) {

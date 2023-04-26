@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-exports.GetPeers = (port) => {
+exports.getPeers = (port) => {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket("ws://192.168.8.103:3000");
 
