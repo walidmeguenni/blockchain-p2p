@@ -1,15 +1,5 @@
-const crypto = require("crypto"),
-  SHA256 = (message) =>
-    crypto.createHash("sha256").update(message).digest("hex");
-const EC = require("elliptic").ec,
-  ec = new EC("secp256k1");
-
-const MINT_PRIVATE_ADDRESS =
-  "0700a1ad28a20e5b2a517c00242d3e25a88d84bf54dce9e1733e6096e6d6495e";
-const MINT_KEY_PAIR = ec.keyFromPrivate(MINT_PRIVATE_ADDRESS, "hex");
-const MINT_PUBLIC_ADDRESS = MINT_KEY_PAIR.getPublic("hex");
-7;
-
+const { Wmcoin } = require("./main");
+const { SHA256 } = require("../utils/sha256");
 class Transaction {
   constructor(from, to, amount, gas = 0, signature) {
     this.from = from;
@@ -26,17 +16,24 @@ class Transaction {
         .toDER("hex");
     }
   }
-
-  static isValid(tx, chain) {
-    // return (
-    //     tx.from &&
-    //     tx.to &&
-    //     tx.amount &&
-    //     (chain.getBalance(tx.from) >= tx.amount + tx.gas || tx.from === MINT_PUBLIC_ADDRESS) &&
-    //     ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas), tx.signature)
-    // )
+  static isValid(tx) {
+    const { from , to, amount , signature} = tx;
+    if (!from || !to || !amount || !signature) {
+      console.log("Invalid transaction: Missing required fields");
+      return false;
+    }
+    if (from === to) {
+      console.log("Sender and receiver addresses are the same");
+      return false;
+    }
+    const balance = Wmcoin.getBalance(from);
+    if (balance < amount) {
+      console.log(`Invalid transaction: Insufficient balance (${balance}) for sending amount (${amount})`);
+      return false;
+    }
     return true;
   }
+
 }
 
 export { Transaction };

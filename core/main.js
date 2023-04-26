@@ -46,7 +46,7 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
-    if (Transaction.isValid(transaction, this)) {
+    if (Transaction.isValid(transaction)) {
       this.transactions.push(transaction);
       return true;
     }
@@ -125,6 +125,6 @@ class Blockchain {
   
 }
 
-const Wmcion = new Blockchain();
+const Wmcoin = new Blockchain();
 
-export { Blockchain, Wmcion };
+export { Blockchain, Wmcoin };

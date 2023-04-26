@@ -8,7 +8,7 @@ const crypto = require("crypto"),
     crypto.createHash("sha256").update(message).digest("hex");
 
 /**core component*/
-const {  Blockchain, Wmcion } = require("./core/main");
+const {  Blockchain, Wmcoin } = require("./core/main");
 const {  Transaction } = require("./core/Transaction");
 const {  Block } = require("./core/Block");
 const { wallet } = require("./core/wallet");
@@ -63,7 +63,7 @@ ws.on("connection", (socket, req) => {
           return;
         }
         // Add the new block to your blockchain
-        Wmcion.addBlock(newBlock);
+        Wmcoin.addBlock(newBlock);
         // Broadcast the new block message to all other peers
         broadcast(produceMessage("NEW_BLOCK", newBlock));
 
@@ -71,26 +71,26 @@ ws.on("connection", (socket, req) => {
         break;
       case "CREATE_NEW_TRANSACTION":
         // Handle new transaction message
-        const transaction = Wmcion.addTransaction(data);
+        const transaction = Wmcoin.addTransaction(data);
         break;
       case "GET_CHAIN":
         // Handle request for blockchain
-        const chain = Wmcion.chain;
+        const chain = Wmcoin.chain;
         const message = produceMessage("REPALCE_TYPE_CHAIN", chain);
         ws.send(JSON.stringify(message));
         break;
       case "REPALCE_TYPE_CHAIN":
         const newChain = message.data[0];
-        if (Blockchain.isValidChain(newChain) && newChain.length > Wmcion.chain.length) {
-          Wmcion.chain = newChain;
-          broadcast("CHAIN", Wmcion.chain);
+        if (Blockchain.isValidChain(newChain) && newChain.length > Wmcoin.chain.length) {
+          Wmcoin.chain = newChain;
+          broadcast("CHAIN", Wmcoin.chain);
         }
         break;
       case "CHAIN":
         const receivedChain = data;
-        if (isValidChain(receivedChain) && receivedChain.length > Wmcion.chain.length) {
+        if (Blockchain.isValidChain(receivedChain) && receivedChain.length > Wmcoin.chain.length) {
           console.log("Received blockchain is valid. Replacing current blockchain with received blockchain.");
-          Wmcion.chain = newChain;
+          Wmcoin.chain = newChain;
         }
         break;
       default:
@@ -177,11 +177,11 @@ const startMiningHandler = (walletAddress) => {
     mining = true;
     miningInterval = setInterval(async () => {
       // Add your mining logic here
-      Wmcion.mineTransactions(walletAddress);
+      Wmcoin.mineTransactions(walletAddress);
 
       broadcast(produceMessage("NEW_BLOCK", [
-        Wmcion.getLastBlock(),
-        Wmcion.difficulty
+        Wmcoin.getLastBlock(),
+        Wmcoin.difficulty
       ]));
       console.log("Mining...");
     }, 1000);
@@ -212,7 +212,7 @@ app.post("/transaction/send", (req, res) => {
       .toDER("hex");
 
     const transaction = new Transaction(from, to, amount, gas, signature);
-    const status =Wmcion.addTransaction(transaction);
+    const status =Wmcoin.addTransaction(transaction);
     if (status) {
       broadcast(produceMessage("CREATE_NEW_TRANSACTION", transaction));
       res
@@ -228,17 +228,17 @@ app.post("/transaction/send", (req, res) => {
 });
 // Route to get transactions
 app.get("/transaction/all",(req,res)=>{
-  const transactions = Wmcion.transactions;
+  const transactions = Wmcoin.transactions;
   res.status(201).json({ Transactions: transactions });
 })
 // Route to get blocks
 app.get("/blocks", (req, res) => {
-  const blocks = Wmcion.getBlocks();
+  const blocks = Wmcoin.getBlocks();
   res.status(201).json({ Blockchain: blocks });
 });
 // Route to get balance
 app.get("/balance", (req, res) => {
-  const balance = Wmcion.getBalance(req.address);
+  const balance = Wmcoin.getBalance(req.address);
   res.status(202).json({ balance: balance });
 });
 // Route to create account
