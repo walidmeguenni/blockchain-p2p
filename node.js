@@ -176,13 +176,14 @@ const startMiningHandler = (walletAddress,privateKey) => {
     mining = true;
     miningInterval = setInterval(async () => {
       // Add your mining logic here
-      Wmcoin.mineBlock(walletAddress, privateKey);
-
-      broadcast(produceMessage("NEW_BLOCK", [
+      if(Wmcoin.mineBlock(walletAddress, privateKey)){
+        broadcast(produceMessage("NEW_BLOCK", [
         Wmcoin.getLastBlock(),
         Wmcoin.difficulty
       ]));
-      console.log("Mining...");
+      } else {
+         return;
+      }
     }, 1000);
   }
 };
