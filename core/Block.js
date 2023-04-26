@@ -1,7 +1,7 @@
 const { SHA256 } = require("../utils/sha256");
 
 class Block {
-  constructor(timestamp = Date.now().toString(), transactoins = []) {
+  constructor(index=0,timestamp= Date.now().toString(), transactoins = []) {
     this.index = index;
     this.prevHash = "";
     this.timestamp = timestamp;
