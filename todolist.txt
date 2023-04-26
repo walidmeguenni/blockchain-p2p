@@ -1,10 +1,6 @@
 Wmcion {
     1-addTransaction
     2-mineTransactions
-    4-addBlock 
-}
-
-Blockchain {
-    1-isValidChain
+    3-addBlock 
 }
 
