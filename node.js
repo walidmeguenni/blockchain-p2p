@@ -170,13 +170,13 @@ function broadcast(message) {
 }
 
 //------------------------- Handler function for "startMining" event-----------//
-const startMiningHandler = (walletAddress) => {
+const startMiningHandler = (walletAddress,privateKey) => {
   if (!mining) {
     console.log("Mining started");
     mining = true;
     miningInterval = setInterval(async () => {
       // Add your mining logic here
-      Wmcoin.mineTransactions(walletAddress);
+      Wmcoin.mineBlock(walletAddress, privateKey);
 
       broadcast(produceMessage("NEW_BLOCK", [
         Wmcoin.getLastBlock(),
@@ -254,7 +254,8 @@ app.get("/wallet/accounts", (req, res) => {
 // Route to start mining
 app.post("/Mine/start", (req, res) => {
   const walletAddress = req.body.walletAddress;
-  eventEmitter.emit("startMining", walletAddress);
+  const privateKey = req.body.privateKey;
+  eventEmitter.emit("startMining", walletAddress, privateKey);
   res.send("Mining started");
 });
 

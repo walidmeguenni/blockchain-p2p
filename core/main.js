@@ -51,7 +51,7 @@ class Blockchain {
     return false;
   }
 
-  mineTransactions(rewardAddress, praviteKey) {
+  mineBlock(rewardAddress, praviteKey) {
     let gas = 0;
     if (this.transactions.length > 10) {
       const txns = this.transactions.splice(0, 10);
