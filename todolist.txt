@@ -8,11 +8,3 @@ Blockchain {
     1-isValidChain
 }
 
-Transaction {
-    1-Transaction()-done
-    2-isValid--done
-}
-
-Block {
-    1-isValidNewBlock
-}
