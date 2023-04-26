@@ -3,9 +3,7 @@ const WebSocket = require("ws");
 const events = require("events");
 const bodyParser = require("body-parser");
 const EC = require("elliptic").ec;
-const crypto = require("crypto"),
-  SHA256 = (message) =>
-    crypto.createHash("sha256").update(message).digest("hex");
+
 
 /**core component*/
 const {  Blockchain, Wmcoin } = require("./core/main");
@@ -15,6 +13,7 @@ const { wallet } = require("./core/wallet");
 
 const { getAddress } = require("./utils/getAddress");
 const { getPeers } = require("./utils/getPeers");
+const { SHA256 } = require("../utils/sha256");
 
 
 let mining = false;

@@ -1,9 +1,7 @@
-import { Block } from "./Block";
-import { Transaction } from "./Transaction";
+const { Block } = require("./Block");
+const { Transaction } = require("./Transaction");
+const { SHA256 } = require("../utils/sha256");
 
-const crypto = require("crypto"),
-  SHA256 = (message) =>
-    crypto.createHash("sha256").update(message).digest("hex");
 const EC = require("elliptic").ec,
   ec = new EC("secp256k1");
 
@@ -94,22 +92,6 @@ class Blockchain {
     return balance;
   }
 
-  static isValid(blockchain) {
-    for (let i = 1; i < blockchain.chain.length; i++) {
-      const currentBlock = blockchain.chain[i];
-      const prevBlock = blockchain.chain[i - 1];
-
-      if (
-        currentBlock.hash !== Block.getHash(currentBlock) ||
-        prevBlock.hash !== currentBlock.prevHash ||
-        !Block.hasValidTransactions(currentBlock, blockchain)
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
   static isValidChain(chain) {
     let prevBlock = chain[0];
   

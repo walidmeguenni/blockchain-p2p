@@ -15,5 +15,4 @@ Transaction {
 
 Block {
     1-isValidNewBlock
-    2-
 }
