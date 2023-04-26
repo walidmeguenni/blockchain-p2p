@@ -1,26 +1,26 @@
 {
-  "name": "jechain",
-  "version": "0.1.0",
-  "description": "An educational-purpose proof-of-work blockchain written in 60 lines of Javascript",
-  "main": "jechain.js",
+  "name": "wmcoin",
+  "version": "0.0.1",
+  "description": "bulid blockchain network",
+  "main": "node.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nguyenphuminh/JeChain.git"
+    "url": "git+https://github.com/walidmeguenni/blockchain-p2p.git"
   },
   "keywords": [
     "blockchain",
     "sha256",
     "crypto"
   ],
-  "author": "nguyenphuminh",
+  "author": "meguenni walid",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nguyenphuminh/JeChain/issues"
+    "url": "https://github.com/walidmeguenni/blockchain-p2p/issues"
   },
-  "homepage": "https://github.com/nguyenphuminh/JeChain#readme",
+  "homepage": "https://github.com/walidmeguenni/blockchain-p2p#readme",
   "dependencies": {
     "body-parser": "^1.20.2",
     "elliptic": "^6.5.4",
