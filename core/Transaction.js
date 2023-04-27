@@ -36,4 +36,4 @@ class Transaction {
 
 }
 
-export { Transaction };
+module.exports =  Transaction ;

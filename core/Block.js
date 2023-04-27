@@ -50,4 +50,4 @@ class Block {
   }
 }
 
-export { Block };
+module.exports =  Block ;

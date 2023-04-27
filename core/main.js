@@ -1,5 +1,5 @@
-const { Block } = require("./Block");
-const { Transaction } = require("./Transaction");
+const  Block = require("./Block");
+const  Transaction  = require("./Transaction");
 const Database = require('./Database');
 
 class Blockchain {
@@ -113,4 +113,4 @@ class Blockchain {
 
 const Wmcoin = new Blockchain();
 
-export { Blockchain, Wmcoin };
+module.exports = { Blockchain, Wmcoin };

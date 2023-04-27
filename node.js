@@ -7,13 +7,13 @@ const EC = require("elliptic").ec;
 
 /**core component*/
 const {  Blockchain, Wmcoin } = require("./core/main");
-const {  Transaction } = require("./core/Transaction");
-const {  Block } = require("./core/Block");
+const   Transaction  = require("./core/Transaction");
+const   Block  = require("./core/Block");
 const { wallet } = require("./core/wallet");
 
 const { getAddress } = require("./utils/getAddress");
 const { getPeers } = require("./utils/getPeers");
-const { SHA256 } = require("../utils/sha256");
+const { SHA256 } = require("./utils/sha256");
 
 
 let mining = false;
@@ -156,7 +156,7 @@ async function startApp() {
     console.error("Error:", error);
   }
 }
-startApp();
+//startApp();
 
 // ------------------------Functions Helper---------------------------//
 function produceMessage(type, data) {
@@ -236,13 +236,18 @@ app.get("/blocks", (req, res) => {
   const blocks = Wmcoin.getBlocks();
   res.status(201).json({ Blockchain: blocks });
 });
+// Route to get latest block
+app.get("/lastblock", (req, res) => {
+  const blocks = Wmcoin.getLastBlock();
+  res.status(201).json({ Blockchain: blocks });
+});
 // Route to get balance
-app.get("/balance", (req, res) => {
-  const balance = Wmcoin.getBalance(req.address);
+app.post("/balance", (req, res) => {
+  const balance = Wmcoin.getBalance(req.body.address);
   res.status(202).json({ balance: balance });
 });
 // Route to create account
-app.get("/wallet/create", (req, res) => {
+app.post("/wallet/create", (req, res) => {
   const account = wallet.create();
   res.status(202).json({ wallet: account });
 });
@@ -265,6 +270,6 @@ app.get("/mine/stop", (req, res) => {
   eventEmitter.emit("stopMining");
   res.send("Mining stopped");
 });
-
+module.exports = app ;
 //---------------------uncaughtException---------------------------//
 process.on("uncaughtException", (err) => console.log(err));

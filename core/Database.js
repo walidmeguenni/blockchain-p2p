@@ -1,8 +1,8 @@
-const level = require('level');
+const {Level} = require('level');
 
 class Database {
   constructor(dbPath) {
-    this.db = level(dbPath, { valueEncoding: 'json' });
+    this.db = new Level(dbPath, { valueEncoding: 'json' });
   }
 
   async createDb() {
