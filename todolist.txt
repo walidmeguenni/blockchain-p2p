@@ -1,6 +1,2 @@
-Wmcion {
-    1-addTransaction
-    2-mineTransactions
-    3-addBlock 
-}
-
+build dashboard 
+add smart contract
