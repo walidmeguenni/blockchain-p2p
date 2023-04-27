@@ -1,5 +1,6 @@
 const { Block } = require("./Block");
 const { Transaction } = require("./Transaction");
+const Database = require('./Database');
 
 class Blockchain {
   constructor() {
@@ -9,6 +10,7 @@ class Blockchain {
     this.blockTime = 30000;
     this.reward = 12;
     this.confermidtransactions = [];
+    this.database = new Database('../db/blockchain.db');
   }
 
   createGenesisBlock() {
@@ -29,6 +31,7 @@ class Blockchain {
     block.mine(this.difficulty);
     this.chain.push(Object.freeze(block));
     this.redetermineDifficulty();
+    this.database.storeBlock(block.index, block)
   }
 
   redetermineDifficulty() {
