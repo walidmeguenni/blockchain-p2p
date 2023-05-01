@@ -206,6 +206,7 @@ eventEmitter.on("stopMining", stopMiningHandler);
 //--------------------------API endpoint to add a new transaction--------------------//
 // Route to send transaction
 app.post("/transaction/send", (req, res) => {
+  console.log(req.body)
   const { from, to, amount, gas, privateKey } = req.body;
   const keyPair = ec.keyFromPrivate(privateKey);
   if (keyPair.getPublic("hex") === from) {
@@ -215,15 +216,16 @@ app.post("/transaction/send", (req, res) => {
 
     const transaction = new Transaction(from, to, amount, gas, signature);
     const status =Wmcoin.addTransaction(transaction);
-    if (status) {
-      broadcast(produceMessage("CREATE_NEW_TRANSACTION", transaction));
-      res
-        .status(202)
-        .json({ _message: "transaction send", transaction: transaction });
+    // if (status) {
+    //   broadcast(produceMessage("CREATE_NEW_TRANSACTION", transaction));
+    //   res
+    //     .status(202)
+    //     .json({ _message: "transaction send", transaction: transaction });
         
-    } else {
-       res.status(400).send("transaction not valid");
-    }
+    // } else {
+    //    res.status(400).send("transaction not valid");
+    // }
+    res.status(202).json({status})
   } else {
     res.status(400).send("keys not match ");
   }

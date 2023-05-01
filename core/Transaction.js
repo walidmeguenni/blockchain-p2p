@@ -16,7 +16,7 @@ class Transaction {
         .toDER("hex");
     }
   }
-  static isValid(tx) {
+  static isValid(tx,chain) {
     const { from , to, amount , signature} = tx;
     if (!from || !to || !amount || !signature) {
       console.log("Invalid transaction: Missing required fields");
@@ -26,8 +26,8 @@ class Transaction {
       console.log("Sender and receiver addresses are the same");
       return false;
     }
-    const balance = Wmcoin.getBalance(from);
-    if (balance < amount) {
+    const balance = chain.getBalance(from);
+    if (balance <  parseInt(amount)) {
       console.log(`Invalid transaction: Insufficient balance (${balance}) for sending amount (${amount})`);
       return false;
     }

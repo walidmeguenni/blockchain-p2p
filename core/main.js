@@ -1,6 +1,6 @@
-const  Block = require("./Block");
-const  Transaction  = require("./Transaction");
-const Database = require('./Database');
+const Block = require("./Block");
+const Transaction = require("./Transaction");
+const Database = require("./Database");
 
 class Blockchain {
   constructor() {
@@ -10,11 +10,20 @@ class Blockchain {
     this.blockTime = 30000;
     this.reward = 12;
     this.confermidtransactions = [];
-    this.database = new Database('../db/blockchain.db');
+    this.database = new Database("../db/blockchain.db");
   }
 
   createGenesisBlock() {
-    return new Block();
+    const transactionGenesis = [
+      {
+        from: "",
+        to: "049f81b7cba82817c116f834b26da50b09e9ba5aa177281010dc7f2928bb13581c66895e8a9c030b81421659b099e5ca67d7df6c1c6df4461703ea62b200953dd3",
+        amount: 10000,
+        gas: 0,
+        signature: "",
+      },
+    ];
+    return new Block(0, Date.now(), transactionGenesis);
   }
 
   getBlocks() {
@@ -31,7 +40,7 @@ class Blockchain {
     block.mine(this.difficulty);
     this.chain.push(Object.freeze(block));
     this.redetermineDifficulty();
-    this.database.storeBlock(block.index, block)
+    this.database.storeBlock(block.index, block);
   }
 
   redetermineDifficulty() {
@@ -47,7 +56,7 @@ class Blockchain {
   }
 
   addTransaction(transaction) {
-    if (Transaction.isValid(transaction)) {
+    if (Transaction.isValid(transaction, this)) {
       this.transactions.push(transaction);
       return true;
     }
@@ -84,12 +93,12 @@ class Blockchain {
     this.chain.forEach((block) => {
       block.transactions.forEach((transaction) => {
         if (transaction.from === address) {
-          balance -= transaction.amount;
-          balance -= transaction.gas;
+          balance -= parseInt(transaction.amount);
+          balance -= parseInt(transaction.gas);
         }
 
         if (transaction.to === address) {
-          balance += transaction.amount;
+          balance += parseInt(transaction.amount);
         }
       });
     });
