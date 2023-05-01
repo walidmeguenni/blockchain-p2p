@@ -16,7 +16,7 @@ class Wallet {
       password:password,
     });
     return {
-      publicKey: publicKey,
+      address: publicKey,
       privateKey: privateKey,
     };
   }

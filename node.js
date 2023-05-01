@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const WebSocket = require("ws");
 const events = require("events");
 const bodyParser = require("body-parser");
@@ -20,6 +21,7 @@ let mining = false;
 let miningInterval;
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 const eventEmitter = new events.EventEmitter();
 const ec = new EC("secp256k1");
 
