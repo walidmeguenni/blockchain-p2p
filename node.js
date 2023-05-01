@@ -248,7 +248,7 @@ app.post("/balance", (req, res) => {
 });
 // Route to create account
 app.post("/wallet/create", (req, res) => {
-  const account = wallet.create();
+  const account = wallet.create(req.body.password);
   res.status(202).json({ wallet: account });
 });
 // Route to get accounts

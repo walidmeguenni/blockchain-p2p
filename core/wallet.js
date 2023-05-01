@@ -6,13 +6,14 @@ class Wallet {
     this.ec = new EC("secp256k1");
   }
 
-  create() {
+  create(password) {
     const keyPair = this.ec.genKeyPair();
     const publicKey = keyPair.getPublic().encode("hex");
     const privateKey = keyPair.getPrivate("hex");
     this.accounts.push({
       publicKey: publicKey,
       privateKey: privateKey,
+      password:password,
     });
     return {
       publicKey: publicKey,
