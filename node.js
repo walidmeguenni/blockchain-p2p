@@ -260,17 +260,17 @@ app.get("/wallet/accounts", (req, res) => {
 });
 
 // Route to start mining
-app.post("/Mine/start", (req, res) => {
+app.post("/mine/start", (req, res) => {
   const walletAddress = req.body.walletAddress;
   const privateKey = req.body.privateKey;
   eventEmitter.emit("startMining", walletAddress, privateKey);
-  res.send("Mining started");
+  res.status(202).json({status:true})
 });
 
 // Route to stop mining
-app.get("/mine/stop", (req, res) => {
+app.post("/mine/stop", (req, res) => {
   eventEmitter.emit("stopMining");
-  res.send("Mining stopped");
+  res.status(202).json({status:false})
 });
 module.exports = app ;
 //---------------------uncaughtException---------------------------//
