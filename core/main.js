@@ -76,7 +76,7 @@ class Blockchain {
         this.reward + gas
       );
       rewardTransaction.sign(praviteKey);
-      const blockTransactions = [rewardTransaction, ...this.transactions];
+      const blockTransactions = [rewardTransaction, ...this.txns];
       this.addBlock(
         new Block(this.chain.length, Date.now().toString(), blockTransactions)
       );

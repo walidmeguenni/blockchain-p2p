@@ -2,7 +2,7 @@ const WebSocket = require("ws");
 
 exports.getPeers = (port) => {
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket("ws://192.168.8.103:3000");
+    const ws = new WebSocket("ws://192.168.8.100:4000");
 
     ws.addEventListener("open", () => {
       console.log("Connected to server");
