@@ -57,14 +57,15 @@ ws.on("connection", (socket, req) => {
         // Parse the new block object from the message payload
         const [newBlock, newDiff] = data;
         // Verify that the block is valid
-        if (!Block.isValidNewBlock(newBlock, newDiff)) {
+
+        if (!Block.isValidNewBlock(newBlock, Wmcoin.getLastBlock(), newDiff)) {
           console.log("Received an invalid new block from peer");
           return;
         }
         // Add the new block to your blockchain
         Wmcoin.addBlock(newBlock);
         // Broadcast the new block message to all other peers
-        broadcast(produceMessage("NEW_BLOCK", newBlock));
+        //  broadcast(produceMessage("NEW_BLOCK", newBlock));
 
         console.log(`Received and added a new block from peer ${senderIp}`);
         break;
@@ -242,13 +243,11 @@ app.get("/wallet/accounts", (req, res) => {
 app.post("/mine/start", (req, res) => {
   const walletAddress = req.body.walletAddress;
   const privateKey = req.body.privateKey;
-  console.log(req.body)
-  // //eventEmitter.emit("startMining", walletAddress, privateKey);
-  // if (startMiningHandler(walletAddress, privateKey)) {
-  //   res.status(202).json({ status: true });
-  // } else {
-  //   res.status(202).json({ status: false });
-  // }
+  if (startMiningHandler(walletAddress, privateKey)) {
+    res.status(202).json({ status: true });
+  } else {
+    res.status(202).json({ status: false });
+  }
 });
 
 // Route to stop mining
@@ -277,7 +276,6 @@ const startMiningHandler = (walletAddress, privateKey) => {
         console.log("Block mined successfully");
         return true;
       } else {
-        console.log("Mining failed");
         return false;
       }
     }, 1000);

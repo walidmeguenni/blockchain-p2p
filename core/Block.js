@@ -1,7 +1,7 @@
 const { SHA256 } = require("../utils/sha256");
 
 class Block {
-  constructor(index=0,timestamp= Date.now().toString(), transactoins = []) {
+  constructor(index = 0, timestamp = Date.now().toString(), transactoins = []) {
     this.index = index;
     this.prevHash = "";
     this.timestamp = timestamp;
@@ -32,7 +32,7 @@ class Block {
     return hash.startsWith(prefix);
   }
 
-  static isValidNewBlock(newBlock, previousBlock) {
+  static isValidNewBlock(newBlock, previousBlock, difficulty) {
     if (previousBlock.index + 1 !== newBlock.index) {
       console.log("invalid index");
       return false;
@@ -50,4 +50,4 @@ class Block {
   }
 }
 
-module.exports =  Block ;
+module.exports = Block;

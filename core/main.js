@@ -79,7 +79,7 @@ class Blockchain {
       );
       const keyPair =  ec.keyFromPrivate(privateKey);
       rewardTransaction.sign(keyPair);
-      const blockTransactions = [rewardTransaction, ...this.txns];
+      const blockTransactions = [rewardTransaction, ...txns];
       this.addBlock(
         new Block(this.chain.length, Date.now().toString(), blockTransactions)
       );
