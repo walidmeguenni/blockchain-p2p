@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const WebSocket = require("ws");
-const events = require("events");
 const bodyParser = require("body-parser");
 const EC = require("elliptic").ec;
 
@@ -20,7 +19,6 @@ let miningInterval;
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-const eventEmitter = new events.EventEmitter();
 const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
@@ -182,48 +180,6 @@ function broadcast(message) {
   });
 }
 
-//------------------------- Handler function for "startMining" event-----------//
-const startMiningHandler = (walletAddress, privateKey) => {
-  if (!mining) {
-    console.log("Mining started");
-    mining = true;
-    miningInterval = setInterval(async () => {
-      // Add your mining logic here
-      if (Wmcoin.mineBlock(walletAddress, privateKey)) {
-        broadcast(
-          produceMessage("NEW_BLOCK", [
-            Wmcoin.getLastBlock(),
-            Wmcoin.difficulty,
-          ])
-        );
-        console.log("Block mined successfully");
-        return true;
-      } else {
-        console.log("Mining failed");
-        return false;
-      }
-    }, 1000);
-  }
-};
-
-// ------------------------Handler function for "stopMining" event-------------//
-const stopMiningHandler = () => {
-  if (mining) {
-    console.log("Mining stopped");
-    mining = false;
-    clearInterval(miningInterval);
-    mining = false;
-    return true;
-  } else {
-    console.log("mining aleardy stoped");
-    return false;
-  }
-};
-
-//------------------------- Attach event handlers to event emitter---------------//
-eventEmitter.on("startMining", startMiningHandler);
-eventEmitter.on("stopMining", stopMiningHandler);
-
 //--------------------------API endpoint to add a new transaction--------------------//
 // Route to send transaction
 app.post("/transaction/send", (req, res) => {
@@ -286,12 +242,13 @@ app.get("/wallet/accounts", (req, res) => {
 app.post("/mine/start", (req, res) => {
   const walletAddress = req.body.walletAddress;
   const privateKey = req.body.privateKey;
-  //eventEmitter.emit("startMining", walletAddress, privateKey);
-  if (startMiningHandler(walletAddress, privateKey)) {
-    res.status(202).json({ status: true });
-  } else {
-    res.status(202).json({ status: false });
-  }
+  console.log(req.body)
+  // //eventEmitter.emit("startMining", walletAddress, privateKey);
+  // if (startMiningHandler(walletAddress, privateKey)) {
+  //   res.status(202).json({ status: true });
+  // } else {
+  //   res.status(202).json({ status: false });
+  // }
 });
 
 // Route to stop mining
@@ -302,6 +259,44 @@ app.post("/mine/stop", (req, res) => {
     res.status(202).json({ message: "" });
   }
 });
-module.exports = app;
+
+//------------------------- Handler function for "startMining" event-----------//
+const startMiningHandler = (walletAddress, privateKey) => {
+  if (!mining) {
+    console.log("Mining started");
+    mining = true;
+    miningInterval = setInterval(async () => {
+      // Add your mining logic here
+      if (Wmcoin.mineBlock(walletAddress, privateKey)) {
+        broadcast(
+          produceMessage("NEW_BLOCK", [
+            Wmcoin.getLastBlock(),
+            Wmcoin.difficulty,
+          ])
+        );
+        console.log("Block mined successfully");
+        return true;
+      } else {
+        console.log("Mining failed");
+        return false;
+      }
+    }, 1000);
+  }
+};
+
+// ------------------------Handler function for "stopMining" event-------------//
+const stopMiningHandler = () => {
+  if (mining) {
+    console.log("Mining stopped");
+    mining = false;
+    clearInterval(miningInterval);
+    mining = false;
+    return true;
+  } else {
+    console.log("mining aleardy stoped");
+    return false;
+  }
+};
+
 //---------------------uncaughtException---------------------------//
 process.on("uncaughtException", (err) => console.log(err));

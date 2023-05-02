@@ -1,5 +1,5 @@
-const { Wmcoin } = require("./main");
 const { SHA256 } = require("../utils/sha256");
+
 class Transaction {
   constructor(from, to, amount, gas = 0, signature="") {
     this.from = from;
