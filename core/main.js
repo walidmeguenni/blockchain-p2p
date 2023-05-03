@@ -5,14 +5,14 @@ const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 
 class Blockchain {
-  constructor() {
+  constructor(PeerId) {
     this.transactions = [];
     this.chain = [this.createGenesisBlock()];
     this.difficulty = 1;
     this.blockTime = 30000;
     this.reward = 12;
     this.confermidtransactions = [];
-    this.database = new Database("../db/blockchain.db");
+    this.database = new Database(PeerId);
   }
 
   createGenesisBlock() {
@@ -123,6 +123,5 @@ class Blockchain {
   }
 }
 
-const Wmcoin = new Blockchain();
 
-module.exports = { Blockchain, Wmcoin };
+module.exports = { Blockchain };

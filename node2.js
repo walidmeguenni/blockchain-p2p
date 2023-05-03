@@ -23,7 +23,7 @@ app.use(cors());
 const ec = new EC("secp256k1");
 
 // create a new WebSocket server and attach it to the Express.js server
-const PORT = 3001;
+const PORT = 3002;
 const MY_ADDRESS = getAddress(PORT);
 const PEERID = getPeerId(MY_ADDRESS);
 let openedPeers = [];
@@ -57,6 +57,7 @@ ws.on("connection", (socket, req) => {
         break;
       case "NEW_BLOCK":
         // Parse the new block object from the message payload
+        console.log(data);
         const [newBlock, newDiff] = data;
         // Verify that the block is valid
 

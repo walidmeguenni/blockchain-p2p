@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const senders = ['ws://192.168.8.100:3001'];
+const senders = ['ws://192.168.8.103:3002'];
 const wss = new WebSocket.Server({ port: 4000 });
 let portsender;
 wss.on('connection', (ws, req) => {

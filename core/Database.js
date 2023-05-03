@@ -1,8 +1,16 @@
-const {Level} = require('level');
+const { Level } = require("level");
+const fs = require("fs");
+const path = require("path");
 
 class Database {
-  constructor(dbPath) {
-    this.db = new Level(dbPath, { valueEncoding: 'json' });
+  constructor(peerId) {
+    this.dir = path.join(__dirname, "..", "db", peerId);
+    if (!fs.existsSync(this.dir)) {
+      fs.mkdirSync(this.dir);
+      this.db = new Level(this.dir, { valueEncoding: "json" });
+    } else {
+      this.db = new Level(this.dir, { valueEncoding: "json" });
+    }
   }
 
   async createDb() {
