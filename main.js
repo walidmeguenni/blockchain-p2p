@@ -2,7 +2,6 @@ const { ws, MY_ADDRESS } = require("./bin/server");
 const { Blockchain } = require("./core/main");
 const Block = require("./core/Block");
 
-const { getPeers } = require("./utils/getPeers");
 const { getPeerId } = require("./utils/getPeerId");
 const { connect, broadcast, produceMessage } = require("./api/services");
 
@@ -103,19 +102,6 @@ ws.on("connection", (socket, req) => {
     console.log("WebSocket connection closed");
   });
 });
-
-//-------------------------Connect Peers------------------------------//
-async function startApp() {
-  try {
-    const PEERS = await getPeers("3001");
-    console.log("PEERS:", PEERS);
-    await PEERS.forEach((peer) => connect(peer));
-    // start the rest of your application here
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-startApp();
 
 //---------------------uncaughtException---------------------------//
 process.on("uncaughtException", (err) => console.log(err));

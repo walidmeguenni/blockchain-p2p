@@ -4,7 +4,7 @@
   "description": "bulid blockchain network",
   "main": "node.js",
   "scripts": {
-    "start": "nodemon main.js"
+    "start": "nodemon connect.js && main.js"
   },
   "bin": {
     "create": "./cli/wallet.js",
