@@ -46,7 +46,7 @@ ws.on("connection", (socket, req) => {
         const [newBlock, newDiff] = data;
         // Verify that the block is valid
 
-        if (!Block.isValidNewBlock(newBlock, Wmcoin.getLastBlock(), newDiff)) {
+        if (!Block.isValidNewBlock(newBlock, Wmcoin.getLastBlock(), Wmcoin.difficulty)) {
           console.log("Received an invalid new block from peer");
           return;
         }
@@ -54,7 +54,7 @@ ws.on("connection", (socket, req) => {
 
         Wmcoin.chain.push(newBlock);
         // Broadcast the new block message to all other peers
-        Wmcoin.difficulty = newDiff;
+        // Wmcoin.difficulty = newDiff;
         broadcast(
           produceMessage("NEW_BLOCK", [
             Wmcoin.getLastBlock(),

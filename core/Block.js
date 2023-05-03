@@ -30,7 +30,7 @@ class Block {
   static isValidProof(hash, difficulty) {
     // const prefix = "0".repeat(difficulty+1);
     // return hash.startsWith(prefix);
-    return true;
+    return hash.startsWith("000" + Array(Math.round(Math.log(difficulty) / Math.log(16) + 1)).join("0")) ;
   }
 
   static isValidNewBlock(newBlock, previousBlock, difficulty) {
