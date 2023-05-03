@@ -4,7 +4,8 @@
   "description": "bulid blockchain network",
   "main": "node.js",
   "scripts": {
-    "start": "nodemon connect.js && main.js"
+    "start": "concurrently \"nodemon main.js\" \"node connect.js\""
+
   },
   "bin": {
     "create": "./cli/wallet.js",
@@ -38,5 +39,8 @@
     "level": "^8.0.0",
     "morgan": "^1.10.0",
     "ws": "^8.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
   }
 }
