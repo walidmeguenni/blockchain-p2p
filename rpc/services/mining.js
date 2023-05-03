@@ -1,5 +1,5 @@
 const { broadcast, produceMessage } = require(".");
-const Wmcoin = require("../app");
+const { Wmcoin } = require("../../core/main");
 
 let mining = false;
 let miningInterval;

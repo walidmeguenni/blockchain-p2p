@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
-const path = require("path");
 const morgan = require("morgan");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 //-----------------------------add routers paths-----------------------------//
 const blockRouter = require("./routes/block");
@@ -13,21 +13,8 @@ const walletRouter = require("./routes/wallet");
 //-----------------------------middleware-----------------------------//
 
 app.use(morgan("dev"));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(cors());
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
-    return res.status(200).json({});
-  }
-  next();
-});
 
 //-----------------------------Routers---------------------------//
 app.use("/block", blockRouter);

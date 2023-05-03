@@ -1,9 +1,11 @@
 const WebSocket = require("ws");
+const { getAddress } = require("../../utils/getAddress");
 
 let openedPeers = [];
 let connectedPeers = [];
+let MY_ADDRESS = getAddress();
 
-exports.connect = async (address, MY_ADDRESS) => {
+exports.connect = async (address) => {
   if (connectedPeers.includes(address) || address === MY_ADDRESS) {
     return; // already connected
   }

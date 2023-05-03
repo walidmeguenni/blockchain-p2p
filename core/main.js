@@ -1,8 +1,11 @@
 const Block = require("./Block");
 const Transaction = require("./Transaction");
 const Database = require("./Database");
+const { getAddress } = require("../utils/getAddress");
+const { getPeerId } = require("../utils/getPeerId");
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
+require("dotenv").config();
 
 class Blockchain {
   constructor(PeerId) {
@@ -77,7 +80,7 @@ class Blockchain {
         rewardAddress,
         this.reward + gas
       );
-      const keyPair =  ec.keyFromPrivate(privateKey);
+      const keyPair = ec.keyFromPrivate(privateKey);
       rewardTransaction.sign(keyPair);
       const blockTransactions = [rewardTransaction, ...txns];
       this.addBlock(
@@ -123,5 +126,7 @@ class Blockchain {
   }
 }
 
-
-module.exports = { Blockchain };
+const MY_ADDRESS = getAddress();
+const PEERID = getPeerId(MY_ADDRESS);
+const Wmcoin = new Blockchain(PEERID);
+module.exports = { Blockchain, Wmcoin };

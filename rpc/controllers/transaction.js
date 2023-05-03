@@ -1,7 +1,8 @@
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 const Transaction = require("../../core/Transaction");
-const Wmcoin = require("../app");
+const { Wmcoin } = require("../../core/main");
+
 const { broadcast, produceMessage } = require("../services");
 
 exports.sendTransaction = (req, res) => {

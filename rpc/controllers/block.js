@@ -1,4 +1,4 @@
-const Wmcoin = require("../app");
+const { Wmcoin } = require("../../core/main");
 
 exports.getBlocks = (req, res) => {
   const blocks = Wmcoin.getBlocks();
