@@ -1,2 +1,0 @@
-build dashboard 
-add smart contract
