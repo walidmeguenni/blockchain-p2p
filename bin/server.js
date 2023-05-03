@@ -1,12 +1,12 @@
 const app = require("../rpc/app");
 const http = require("http");
 const { startApp } = require("../ws/connect");
-const { startWebSocketServer } = require("../ws/main");
+const { startWebSocketServer } = require("../ws/socket");
 require("dotenv").config();
+
 startApp();
-// create a new WebSocket server and attach it to the Express.js server
+
 const PORT = process.env.PORT;
-// create a new WebSocket server and attach it to the Express.js server
 
 app.set("port", PORT);
 
