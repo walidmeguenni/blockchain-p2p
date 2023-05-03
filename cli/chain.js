@@ -7,7 +7,7 @@ program //get all block
   .description("Get all blocks")
   .action(async () => {
     try {
-      const response = await axios.get("http://localhost:3001/blocks");
+      const response = await axios.get("http://localhost:3001/block/all");
       console.log(response.data.Blockchain);
     } catch (error) {
       console.error(error);
@@ -18,7 +18,7 @@ program //get last block
   .description("Get last blocks")
   .action(async () => {
     try {
-      const response = await axios.get("http://localhost:3001/lastblock");
+      const response = await axios.get("http://localhost:3001/block/lastblock");
       console.log(response.data.Blockchain);
     } catch (error) {
       console.error(error);
