@@ -7,7 +7,7 @@ program // get balance
   .description("Get balance for an address")
   .action(async (address) => {
     try {
-      const response = await axios.post("http://localhost:3001/balance", {
+      const response = await axios.post("http://localhost:3001/wallet/balance", {
         body: { address },
       });
       console.log(response.data);

@@ -10,7 +10,7 @@ program //start mining
   .action((options) => {
     const { address, privateKey } = options;
     axios
-      .post("http://localhost:3001/Mine/start", {
+      .post("http://localhost:3001/mining/start", {
         walletAddress: address,
         privateKey,
       })
@@ -27,7 +27,7 @@ program  //stop mining
   .description("Stop mining")
   .action(async () => {
     try {
-      const response = await axios.get("http://localhost:3001/mine/stop");
+      const response = await axios.get("http://localhost:3001/mining/stop");
       console.log(response.data);
     } catch (error) {
       console.error(error.message);
