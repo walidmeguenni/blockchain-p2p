@@ -21,16 +21,15 @@ class Block {
   }
 
   mine(difficulty) {
-    while (!this.hash.startsWith(Array(difficulty + 1).join("0"))) {
+    const target = "0".repeat(difficulty);
+    while (this.hash.substring(0, difficulty) !== target) {
       this.nonce++;
       this.hash = Block.getHash(this);
     }
-  }
-
+  } 
   static isValidProof(hash, difficulty) {
-    // const prefix = "0".repeat(difficulty+1);
-    // return hash.startsWith(prefix);
-    return hash.startsWith("000" + Array(Math.round(Math.log(difficulty) / Math.log(16) + 1)).join("0")) ;
+    const prefix = "0".repeat(difficulty);
+    return hash.startsWith(prefix);
   }
 
   static isValidNewBlock(newBlock, previousBlock, difficulty) {
