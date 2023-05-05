@@ -1,6 +1,7 @@
 const Block = require("./Block");
 const Transaction = require("./Transaction");
 const Database = require("./Database");
+const SamartContract = require("./smartContract");
 const { getAddress } = require("../utils/getAddress");
 const { getPeerId } = require("../utils/getPeerId");
 const EC = require("elliptic").ec;
@@ -16,6 +17,7 @@ class Blockchain {
     this.reward = 12;
     this.confermidtransactions = [];
     this.database = new Database(PeerId);
+    this.contracts = [];
   }
 
   createGenesisBlock() {
@@ -123,6 +125,28 @@ class Blockchain {
       prevBlock = currBlock;
     }
     return true;
+  }
+
+  deploy(abi, bytecode, from, privateKey, amount = 0, gas = 10) {
+    try {
+      if (gas < 10) return { satatus: false, message: "insufficient gas ... " };
+      const SC = new SamartContract(abi, bytecode);
+      this.contracts.push(SC.contract);
+      const keyPair = ec.keyFromPrivate(privateKey);
+      if (keyPair.getPublic("hex") === from) {
+        const signature = keyPair
+          .sign(SHA256(from + "" + amount + gas), "base64")
+          .toDER("hex");
+        const transaction = new Transaction(from, "", amount, gas, signature);
+        if (Wmcoin.addTransaction(transaction)) {
+          return { status: true, smartID: SC.contract.id };
+        } else {
+          return { satatus: false, message: "transaction not valid" };
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
