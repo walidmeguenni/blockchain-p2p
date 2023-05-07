@@ -16,11 +16,7 @@
     "type": "git",
     "url": "git+https://github.com/walidmeguenni/blockchain-p2p.git"
   },
-  "keywords": [
-    "blockchain",
-    "sha256",
-    "crypto"
-  ],
+  "keywords": [],
   "author": "meguenni walid",
   "license": "MIT",
   "bugs": {
