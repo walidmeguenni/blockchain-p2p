@@ -1,4 +1,4 @@
-const { broadcast, produceMessage } = require(".");
+const { sendMessage, produceMessage } = require(".");
 const { Wmcoin } = require("../../core/main");
 
 let mining = false;
@@ -11,7 +11,7 @@ exports.startMiningHandler = (walletAddress, privateKey) => {
     miningInterval = setInterval(async () => {
       // Add your mining logic here
       if (Wmcoin.mineBlock(walletAddress, privateKey)) {
-        broadcast(
+        sendMessage(
           produceMessage("NEW_BLOCK", [
             Wmcoin.getLastBlock(),
             Wmcoin.difficulty,

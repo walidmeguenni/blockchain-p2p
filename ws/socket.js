@@ -2,7 +2,7 @@ const WebSocket = require("ws");
 const { Blockchain, Wmcoin } = require("../core/main");
 const Block = require("../core/Block");
 
-const { connect, broadcast, produceMessage } = require("../rpc/services");
+const { connect, sendMessage, produceMessage } = require("../rpc/services");
 
 exports.startWebSocketServer = (server) => {
   const ws = new WebSocket.Server({ server });
@@ -41,9 +41,9 @@ exports.startWebSocketServer = (server) => {
           // Add the new block to your blockchain
 
           Wmcoin.chain.push(newBlock);
-          // Broadcast the new block message to all other peers
+          // sendMessage the new block message to all other peers
           // Wmcoin.difficulty = newDiff;
-          broadcast(
+          sendMessage(
             produceMessage("NEW_BLOCK", [
               Wmcoin.getLastBlock(),
               Wmcoin.difficulty,
@@ -58,7 +58,7 @@ exports.startWebSocketServer = (server) => {
         case "GET_CHAIN":
           // Handle request for blockchain
           const chain = Wmcoin.chain;
-          broadcast(produceMessage("REPALCE_TYPE_CHAIN", chain));
+          sendMessage(produceMessage("REPALCE_TYPE_CHAIN", chain));
           break;
         case "REPALCE_TYPE_CHAIN":
           const newChain = data;
@@ -67,7 +67,7 @@ exports.startWebSocketServer = (server) => {
             newChain.length >= Wmcoin.chain.length
           ) {
             Wmcoin.chain = newChain;
-            //broadcast("CHAIN", Wmcoin.chain);
+            //sendMessage("CHAIN", Wmcoin.chain);
           }
           break;
         case "CHAIN":

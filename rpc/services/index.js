@@ -1,4 +1,5 @@
 const WebSocket = require("ws");
+require("dotenv").config();
 const { getAddress } = require("../../utils/getAddress");
 
 let openedPeers = [];
@@ -46,8 +47,41 @@ exports.connect = async (address) => {
 exports.produceMessage = (type, data) => {
   return { type, data };
 };
-exports.broadcast = (message) => {
+
+exports.sendMessage = (message) => {
+  switch (process.env.METHOD_OF_SEND_MESSAGE) {
+    case "broadcast":
+      broadcast(message);
+      break;
+    case "gossip":
+      gossipProtocol(message);
+      break;
+    case "OLSR":
+      olsrProtocol(message);
+    default:
+      console.log("Invalid method of sending message");
+      break;
+  }
+};
+
+const broadcast = (message) => {
   openedPeers.forEach((node) => {
     node.socket.send(JSON.stringify(message));
   });
 };
+function getRandomSubset(size = 30) {
+  const shuffled = openedPeers.sort(() => 0.5 - Math.random());
+  const nbrPeers = Math.ceil((openedPeers.length * size) / 100);
+  return shuffled.slice(0, nbrPeers);
+}
+const gossipProtocol = (message, numRounds = 5) => {
+  for (let index = 0; index < numRounds; index++) {
+    const gossipPeers = getRandomSubset();
+    // Send the message to the selected peers
+    gossipPeers.forEach((node) => {
+      node.socket.send(JSON.stringify(message));
+    });
+  }
+};
+
+const olsrProtocol = (message) => {};

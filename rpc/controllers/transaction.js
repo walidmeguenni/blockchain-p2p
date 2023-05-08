@@ -4,7 +4,7 @@ const Transaction = require("../../core/Transaction");
 const { Wmcoin } = require("../../core/main");
 const { SHA256 } = require("../../utils/sha256");
 
-const { broadcast, produceMessage } = require("../services");
+const { sendMessage, produceMessage } = require("../services");
 
 exports.sendTransaction = (req, res) => {
   const { from, to, amount, gas, privateKey } = req.body;
@@ -16,7 +16,7 @@ exports.sendTransaction = (req, res) => {
     const transaction = new Transaction(from, to, amount, gas, signature);
     const status = Wmcoin.addTransaction(transaction);
     if (status) {
-      broadcast(produceMessage("CREATE_NEW_TRANSACTION", transaction));
+      sendMessage(produceMessage("CREATE_NEW_TRANSACTION", transaction));
       res.status(202).json({
         _message: "transaction send",
         transaction: transaction,
