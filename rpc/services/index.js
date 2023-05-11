@@ -56,8 +56,6 @@ exports.sendMessage = (message) => {
     case "gossip":
       gossipProtocol(message);
       break;
-    case "OLSR":
-      olsrProtocol(message);
     default:
       console.log("Invalid method of sending message");
       break;
@@ -84,4 +82,12 @@ const gossipProtocol = (message, numRounds = 5) => {
   }
 };
 
-const olsrProtocol = (message) => {};
+exports.signTranasction = (from, privateKey) => {
+  const keyPair = ec.keyFromPrivate(privateKey);
+  if (keyPair.getPublic("hex") === from) {
+    return keyPair
+      .sign(SHA256(from + "" + amount + gas), "base64")
+      .toDER("hex");
+  }
+  return false;
+};

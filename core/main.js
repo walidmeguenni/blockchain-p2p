@@ -1,9 +1,10 @@
 const Block = require("./Block");
 const Transaction = require("./Transaction");
 const Database = require("./Database");
-const SamartContract = require("./smartContract");
+const SmartContract = require("./smartContract");
 const { getAddress } = require("../utils/getAddress");
 const { getPeerId } = require("../utils/getPeerId");
+const { signTranasction } = require("../rpc/services");
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 require("dotenv").config();
@@ -130,22 +131,72 @@ class Blockchain {
   deploy(abi, bytecode, from, privateKey, amount = 0, gas = 10) {
     try {
       if (gas < 10) return { satatus: false, message: "insufficient gas ... " };
-      const SC = new SamartContract(abi, bytecode);
+      const SC = new SmartContract(abi, bytecode);
       this.contracts.push(SC.contract);
-      const keyPair = ec.keyFromPrivate(privateKey);
-      if (keyPair.getPublic("hex") === from) {
-        const signature = keyPair
-          .sign(SHA256(from + "" + amount + gas), "base64")
-          .toDER("hex");
-        const transaction = new Transaction(from, "", amount, gas, signature);
-        if (Wmcoin.addTransaction(transaction)) {
-          return { status: true, smartID: SC.contract.id };
-        } else {
-          return { satatus: false, message: "transaction not valid" };
-        }
+      const signature = signTranasction(from, privateKey);
+      const data = "0x" + SC.id;
+      const transaction = new Transaction(
+        from,
+        "",
+        amount,
+        gas,
+        signature,
+        data
+      );
+      if (signature && Wmcoin.addTransaction(transaction)) {
+        return { status: true, smartID: SC.contract.id };
+      } else {
+        return { satatus: false, message: "transaction not valid" };
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async execute(contractId, methodName, from, privateKey, ...args) {
+    try {
+      const contract = this.contracts.find((c) => c.id === contractId);
+      if (!contract) throw new Error(`Contract ${contractId} not found`);
+
+      const methodAbi = contract.abi.find((m) => m.name === methodName);
+      if (!methodAbi)
+        throw new Error(
+          `Method ${methodName} not found in contract ${contractId}`
+        );
+
+      const signatureFunction =
+        SmartContract.generateFunctionSignature(methodAbi);
+      const signatureArgs = SmartContract.encodeParameters(
+        methodAbi.inputs,
+        args
+      );
+      const signature = signTranasction(from, privateKey);
+      const data = "0x" + functionSignature + encodedParams;
+      const transaction = new Transaction(
+        from,
+        "",
+        amount,
+        gas,
+        signature,
+        data
+      );
+      if (signature && Wmcoin.addTransaction(transaction)) {
+        const returnValue = SmartContract.decodeParameters(
+          methodAbi.outputs,
+          transaction
+        );
+
+        return {
+          status: true,
+          smartID: SC.contract.id,
+          output: returnValue,
+        };
+      } else {
+        return { satatus: false, message: "transaction not valid" };
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
   }
 }
