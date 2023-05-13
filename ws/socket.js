@@ -82,6 +82,71 @@ exports.startWebSocketServer = (server) => {
             Wmcoin.chain = newChain;
           }
           break;
+        case "DEPLOY_NEW_SMART_CONTRACT":
+          const { contract, tx } = data;
+          if (Wmcoin.addSmartContract(contract)) {
+            if (Wmcoin.addTransaction(tx)) {
+              sendMessage(
+                produceMessage("DEPLOY_NEW_SMART_CONTRACT_SUCCESS", {
+                  transaction: tx,
+                  contractId: contract.id,
+                })
+              );
+            } else {
+              sendMessage(
+                produceMessage("DEPLOY_NEW_SMART_CONTRACT_ERROR", {
+                  contractId: contract.id,
+                  message: "Error adding transaction to blockchain",
+                })
+              );
+            }
+          } else {
+            sendMessage(
+              produceMessage("DEPLOY_NEW_SMART_CONTRACT_ERROR", {
+                contractId: contract.id,
+                message: "Invalid smart contract",
+              })
+            );
+          }
+          break;
+        case "DEPLOY_NEW_SMART_CONTRACT_SUCCESS":
+          const { txss, contractId } = data;
+          console.log(
+            `Smart contract deployed successfully with ID ${contractId}. Transaction hash: ${txss}`
+          );
+          // additional actions, such as updating a database or notifying users, can be performed here
+          break;
+        case "DEPLOY_NEW_SMART_CONTRACT_ERROR":
+          const { smartContractId, messageError } = data;
+          console.log(
+            `Failed to deploy smart contract with ID ${smartContractId}. Error message: ${messageError}`
+          );
+          break;
+        case "EXECUTE_METHOD_OF_SMART_CONTRACT":
+          const { outputs, smartID, transactionSM } = data;
+          const executedMethod = Wmcoin.getMethod(smartID, transactionSM);
+          const result = {
+            contractId: smartID,
+            methodName: executedMethod.name,
+            outputs: outputs,
+            transaction: transactionSM,
+          };
+          sendMessage(
+            produceMessage("EXECUTE_METHOD_OF_SMART_CONTRACT_SUCCESS", result)
+          );
+          break;
+        case "EXECUTE_METHOD_OF_SMART_CONTRACT_SUCCESS":
+          const { id, methodName, output, txms } = data;
+          const res = {
+            contractId: id,
+            methodName: methodName,
+            outputs: outputs,
+            transaction: txms,
+          };
+          // Do something with the result, like store it in a database or return it to the user
+          console.log("Executed method successfully:", res);
+          break;
+
         default:
           console.log(`Unknown message type: ${type}`);
       }

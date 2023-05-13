@@ -144,7 +144,11 @@ class Blockchain {
         data
       );
       if (signature && Wmcoin.addTransaction(transaction)) {
-        return { status: true, smartID: SC.contract.id };
+        return {
+          status: true,
+          contract: SC.contract,
+          transaction: transaction,
+        };
       } else {
         return { satatus: false, message: "transaction not valid" };
       }
@@ -189,7 +193,8 @@ class Blockchain {
         return {
           status: true,
           smartID: SC.contract.id,
-          output: returnValue,
+          outputs: returnValue,
+          transactionSM: transaction,
         };
       } else {
         return { satatus: false, message: "transaction not valid" };
@@ -198,6 +203,24 @@ class Blockchain {
       console.log(error);
       throw error;
     }
+  }
+
+  addSmartContract(contract) {
+    if (SmartContract.isValidSmartContract(contract)) {
+      this.contracts.push(contract);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  getSmartContractById(id) {
+    return this.contracts.find((contract) => contract.id === id);
+  }
+  getMethod(contractAddress, transaction) {
+    const contract = this.getSmartContractById(contractAddress);
+    const methodSignature = transaction.data.slice(2, 10);
+    const method = contract.abi.find((m) => m.signature === methodSignature);
+    return method;
   }
 }
 

@@ -8,6 +8,7 @@ const blockRouter = require("./routes/block");
 const miningRouter = require("./routes/mining");
 const transactionRouter = require("./routes/transaction");
 const walletRouter = require("./routes/wallet");
+const smartContractRouter = require("./routes/smartContract");
 
 //-----------------------------middleware-----------------------------//
 
@@ -28,13 +29,12 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 //-----------------------------Routers---------------------------//
 app.use("/block", blockRouter);
 app.use("/mining", miningRouter);
 app.use("/wallet", walletRouter);
 app.use("/transaction", transactionRouter);
+app.use("/smartcontract", smartContractRouter);
 
 //-----------------------------Handling errors---------------------//
 app.use((req, res, next) => {

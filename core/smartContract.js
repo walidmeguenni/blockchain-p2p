@@ -34,6 +34,28 @@ class SmartContract {
     });
     return outputObject;
   }
+  static isValidSmartContract(contract) {
+    // Check if the contract has a valid id
+    if (!contract.id || typeof contract.id !== "string") {
+      return false;
+    }
+
+    // Check if the contract has a valid abi array
+    if (!Array.isArray(contract.abi) || contract.abi.length === 0) {
+      return false;
+    }
+
+    // Check if the contract has a valid bytecode string
+    if (
+      typeof contract.bytecode !== "string" ||
+      contract.bytecode.length === 0
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+  
 }
 
 module.exports = SmartContract;
