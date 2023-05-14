@@ -126,10 +126,10 @@ exports.startWebSocketServer = (server) => {
           const { outputs, smartID, transactionSM } = data;
           const executedMethod = Wmcoin.getMethod(smartID, transactionSM);
           const result = {
-            contractId: smartID,
+            id: smartID,
             methodName: executedMethod.name,
-            outputs: outputs,
-            transaction: transactionSM,
+            output: outputs,
+            txms: transactionSM,
           };
           sendMessage(
             produceMessage("EXECUTE_METHOD_OF_SMART_CONTRACT_SUCCESS", result)
@@ -140,7 +140,7 @@ exports.startWebSocketServer = (server) => {
           const res = {
             contractId: id,
             methodName: methodName,
-            outputs: outputs,
+            outputs: output,
             transaction: txms,
           };
           // Do something with the result, like store it in a database or return it to the user
