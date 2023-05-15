@@ -150,7 +150,7 @@ class Blockchain {
           transaction: transaction,
         };
       } else {
-        return { satatus: false, message: "transaction not valid" };
+        return { status: false, message: "transaction not valid" };
       }
     } catch (error) {
       console.log(error);

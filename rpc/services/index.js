@@ -1,4 +1,6 @@
 const WebSocket = require("ws");
+const solc = require("solc");
+
 require("dotenv").config();
 const { getAddress } = require("../../utils/getAddress");
 
@@ -90,4 +92,30 @@ exports.signTranasction = (from, privateKey) => {
       .toDER("hex");
   }
   return false;
+};
+
+exports.compileContract = (contractName, contractSource) => {
+  const input = {
+    language: "Solidity",
+    sources: {
+      "Contract.sol": {
+        content: contractSource,
+      },
+    },
+    settings: {
+      outputSelection: {
+        "*": {
+          "*": ["*"],
+        },
+      },
+    },
+  };
+
+  const output = JSON.parse(solc.compile(JSON.stringify(input)));
+  const contract = output.contracts["Contract.sol"][contractName];
+
+  return {
+    abi: contract.abi,
+    bytecode: contract.evm.bytecode.object,
+  };
 };
