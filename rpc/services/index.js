@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const solc = require("solc");
-
+const EC = require("elliptic").ec;
+const ec = new EC("secp256k1");
 require("dotenv").config();
 const { getAddress } = require("../../utils/getAddress");
 

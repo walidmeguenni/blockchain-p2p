@@ -25,7 +25,7 @@ class Blockchain {
     const transactionGenesis = [
       {
         from: "",
-        to: "049f81b7cba82817c116f834b26da50b09e9ba5aa177281010dc7f2928bb13581c66895e8a9c030b81421659b099e5ca67d7df6c1c6df4461703ea62b200953dd3",
+        to: "04aa488ae7207dbce8ac84e61c358befcc384cd5d1ce5d921c866a63a222b11c3a5c00918848331556dac8df162de1261f595da5d52e51c4aa1e1862b0adefc7e6",
         amount: 10000,
         gas: 0,
         signature: "",

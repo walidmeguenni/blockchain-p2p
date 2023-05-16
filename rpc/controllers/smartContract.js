@@ -5,7 +5,6 @@ const { sendMessage } = require("../services");
 exports.deployContract = async (req, res) => {
   try {
     const { abi, bytecode, from, privateKey, gas } = req.body;
-
     // validate input parameters
     if (!abi || !bytecode || !from || !privateKey) {
       return res.status(400).json({ message: "Missing input parameters" });
