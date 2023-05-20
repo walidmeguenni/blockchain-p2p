@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 const { hasAvilablePeers, getAddressPeer } = require("./services");
 
-const senders = [];
+const senders = ["ws://192.168.8.103:3002"];
 
 let filteredAddresses;
 let portsender;
