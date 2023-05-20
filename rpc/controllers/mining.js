@@ -1,7 +1,7 @@
 const {
     startMiningHandler,
     stopMiningHandler,
-  } = require("../services/mining");
+  } = require("../services");
   exports.startMining = (req, res) => {
     const walletAddress = req.body.walletAddress;
     const privateKey = req.body.privateKey;

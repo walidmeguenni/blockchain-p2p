@@ -1,4 +1,4 @@
-const { connect } = require("../rpc/services");
+const { connect } = require("../services");
 const { getPeers } = require("../utils/getPeers");
 require("dotenv").config();
 exports.startApp = async () => {
