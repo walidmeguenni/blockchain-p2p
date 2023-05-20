@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 const { hasAvilablePeers, getAddressPeer } = require("./services");
 
-const senders = ["ws://192.168.8.103:3002"];
+const senders = [{ peers: "ws://192.168.8.103:3002" }];
 
 let filteredAddresses;
 let portsender;
@@ -27,7 +27,7 @@ wss.on("connection", (ws, req) => {
         } else {
           ws.send(JSON.stringify(senders));
         }
-        senders.push(address);
+        senders.push({ peers: address });
       } else {
         filteredAddresses = senders.filter(
           (addressIp) => addressIp !== address
