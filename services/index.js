@@ -1,18 +1,17 @@
 const WebSocket = require("ws");
 const EC = require("elliptic").ec;
-const ec = new EC("secp256k1");
 require("dotenv").config();
 
-const { getAddress } = require("../utils/getAddress");
-const { getPeerId } = require("../utils/getPeerId");
-const { listPeersNeighbors } = require("../ws/socket");
+const neighbors = require("../core/Neighbors");
+const { Node } = require("../core/Peer");
 
 let openedPeers = [];
 let connectedPeers = [];
-let MY_ADDRESS = getAddress();
-const id = getPeerId(MY_ADDRESS);
+
+const ec = new EC("secp256k1");
+
 exports.connect = async (address) => {
-  if (connectedPeers.includes(address) || address === MY_ADDRESS) {
+  if (connectedPeers.includes(address) || address === Node.address) {
     return; // already connected
   }
 
@@ -27,19 +26,24 @@ exports.connect = async (address) => {
 
     // Send handshake message
     const message = {
-      id: id,
+      id: Node.id,
       type: "TYPE_HANDSHAKE",
-      data: [MY_ADDRESS, ...connectedPeers],
+      data: [Node.address, ...connectedPeers],
     };
     socket.send(JSON.stringify(message));
 
     // Send Request chain
-    const requestChain = { id: id, type: "GET_CHAIN" };
+    const requestChain = { id: Node.id, type: "GET_CHAIN" };
     socket.send(JSON.stringify(requestChain));
     // Store socket and add to list of connected peers
     const peer = { address, socket };
     openedPeers.push(peer);
     connectedPeers.push(address);
+    console.log("#");
+    console.log("#");
+    console.log("#");
+    console.log("#");
+    console.log(`#----------New peer add to the List of Peers:${address}`);
     // Handle socket closing
     socket.addEventListener("close", () => {
       openedPeers.splice(openedPeers.indexOf(peer), 1);
@@ -50,15 +54,17 @@ exports.connect = async (address) => {
     console.log("#");
     console.log("#");
     console.log("#");
-    console.error(`Failed to connect to peer at ${address}: ${error}`);
+    console.error(
+      `#----------Failed to connect to peer at ${address}: ${error}----------#`
+    );
   }
 };
 
-exports.produceMessage = (type, data) => {
-  return { id: id, type, data };
+exports.produceMessage = (id, type, data) => {
+  return { id, type, data };
 };
 
-exports.sendMessage = (id, message) => {
+exports.sendMessage = (message) => {
   switch (process.env.METHOD_OF_SEND_MESSAGE) {
     case "broadcast":
       broadcast(message, openedPeers);
@@ -67,7 +73,7 @@ exports.sendMessage = (id, message) => {
       gossipProtocol(message);
       break;
     case "olsr":
-      olsrProtocol(id, message);
+      olsrProtocol(message);
       break;
     default:
       console.log("Invalid method of sending message");
@@ -93,7 +99,8 @@ const gossipProtocol = (message, numRounds = 5) => {
   }
 };
 
-const olsrProtocol = (id, message) => {
+const olsrProtocol = (message) => {
+  const { id } = message;
   const olsrPeers = getOlsrPeers(id);
   // Send the message to the selected peers
   broadcast(message, olsrPeers);
@@ -102,6 +109,7 @@ const olsrProtocol = (id, message) => {
 const getOlsrPeers = (id) => {
   let olsrPeers = [];
   let targetedPeers = [];
+  let listPeersNeighbors = neighbors.get();
   listPeersNeighbors.map((peer) => {
     if (peer.id !== id) {
       const result = peer.neighbors.find((id) => id === peer.id);

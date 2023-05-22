@@ -1,45 +1,29 @@
 const WebSocket = require("ws");
-const { Blockchain, Wmcoin } = require("../core/main");
 const Block = require("../core/Block");
+const neighbors = require("../core/Neighbors");
+const { Blockchain, Wmcoin } = require("../core/main");
+const { sendMessage, produceMessage, connect } = require("../services");
+const { Node, Peer } = require("../core/Peer");
 
-const { sendMessage, produceMessage } = require("../services");
-const { getPeerId } = require("../utils/getPeerId");
-const { getAddress } = require("../utils/getAddress");
-exports.listPeersNeighbors = [];
-let MY_ADDRESS = getAddress();
-const myId = getPeerId(MY_ADDRESS);
 exports.startWebSocketServer = (server) => {
   const ws = new WebSocket.Server({ server });
   ws.on("connection", (socket, req) => {
-    console.log("#");
-    console.log("#");
-    console.log("#");
-    console.log("#");
-    console.log("A new WebSocket connection was established");
     socket.on("message", (message) => {
-      //console.log(`Received message: ${message}`);
-      const senderIp = (
-        req.headers["x-forwarded-for"] || req.connection.remoteAddress
-      ).replace(/^::ffff:/, "");
-      console.log(`{Riceive message from ${senderIp} }`);
+      const senderIp = Peer.getAddressPeer(req);
       const { id, type, data } = JSON.parse(message);
-      console.log(type);
+      console.log("#");
+      console.log("#");
+      console.log("#");
+      console.log("#");
+      console.log(
+        `#----------Riceive message from ${senderIp}: Type message received: ${type}`
+      );
       // Handle incoming messages from the client
       switch (type) {
         case "TYPE_HANDSHAKE":
-          const  nodes  = data;
-          const index = this.listPeersNeighbors.findIndex(
-            (peer) => peer.id === id
-          );
-
-          if (index !== -1) {
-            // If the idPeer already exists, replace the neighbors value
-            this.listPeersNeighbors[index].neighbors = nodes;
-          } else {
-            // If the idPeer doesn't exist, insert a new entry
-            this.listPeersNeighbors.push({ id: idPeer, neighbors: nodes });
-          }
-
+          const nodes = data;
+          neighbors.push(id, nodes);
+          nodes.forEach((node) => connect(node));
           break;
         case "NEW_BLOCK":
           // Parse the new block object from the message payload
@@ -63,7 +47,7 @@ exports.startWebSocketServer = (server) => {
           // sendMessage the new block message to all other peers
           // Wmcoin.difficulty = newDiff;
           sendMessage(
-            produceMessage(myId,"NEW_BLOCK", [
+            produceMessage(Node.id, "NEW_BLOCK", [
               Wmcoin.getLastBlock(),
               Wmcoin.difficulty,
             ])
@@ -77,7 +61,7 @@ exports.startWebSocketServer = (server) => {
         case "GET_CHAIN":
           // Handle request for blockchain
           const chain = Wmcoin.chain;
-          sendMessage(produceMessage(myId,"REPALCE_TYPE_CHAIN", chain));
+          sendMessage(produceMessage(Node.id, "REPALCE_TYPE_CHAIN", chain));
           break;
         case "REPALCE_TYPE_CHAIN":
           const newChain = data;
@@ -86,7 +70,7 @@ exports.startWebSocketServer = (server) => {
             newChain.length >= Wmcoin.chain.length
           ) {
             Wmcoin.chain = newChain;
-            //sendMessage("CHAIN", Wmcoin.chain);
+            sendMessage(produceMessage(Node.id, "CHAIN", Wmcoin.chain));
           }
           break;
         case "CHAIN":

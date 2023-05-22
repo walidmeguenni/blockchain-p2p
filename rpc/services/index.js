@@ -1,9 +1,7 @@
 const { sendMessage, produceMessage } = require("../../services");
 const { Wmcoin } = require("../../core/main");
-const { getAddress } = require("../../utils/getAddress");
-const { getPeerId } = require("../../utils/getPeerId");
-let MY_ADDRESS = getAddress();
-const myId = getPeerId(MY_ADDRESS);
+const { Node } = require("../../core/Peer");
+
 let mining = false;
 let miningInterval;
 
@@ -15,7 +13,7 @@ exports.startMiningHandler = (walletAddress, privateKey) => {
       // Add your mining logic here
       if (Wmcoin.mineBlock(walletAddress, privateKey)) {
         sendMessage(
-          produceMessage(myId, "NEW_BLOCK", [
+          produceMessage(Node.id, "NEW_BLOCK", [
             Wmcoin.getLastBlock(),
             Wmcoin.difficulty,
           ])

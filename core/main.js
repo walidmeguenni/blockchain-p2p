@@ -1,8 +1,7 @@
 const Block = require("./Block");
 const Transaction = require("./Transaction");
 const Database = require("./Database");
-const { getAddress } = require("../utils/getAddress");
-const { getPeerId } = require("../utils/getPeerId");
+const { Node } = require("./Peer");
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 require("dotenv").config();
@@ -125,10 +124,7 @@ class Blockchain {
     }
     return true;
   }
-
 }
 
-const MY_ADDRESS = getAddress();
-const PEERID = getPeerId(MY_ADDRESS);
-const Wmcoin = new Blockchain(PEERID);
+const Wmcoin = new Blockchain(Node.id);
 module.exports = { Blockchain, Wmcoin };

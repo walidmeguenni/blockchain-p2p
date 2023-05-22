@@ -2,14 +2,9 @@ const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
 const Transaction = require("../../core/Transaction");
 const { Wmcoin } = require("../../core/main");
-const { getAddress } = require("../../utils/getAddress");
-const { getPeerId } = require("../../utils/getPeerId");
 const { SHA256 } = require("../../utils/sha256");
-
+const { Node } = require("../../core/Peer");
 const { sendMessage, produceMessage } = require("../../services");
-
-let MY_ADDRESS = getAddress();
-const myId = getPeerId(MY_ADDRESS);
 
 exports.sendTransaction = (req, res) => {
   const { from, to, amount, gas, privateKey } = req.body;
@@ -21,7 +16,9 @@ exports.sendTransaction = (req, res) => {
     const transaction = new Transaction(from, to, amount, gas, signature);
     const status = Wmcoin.addTransaction(transaction);
     if (status) {
-      sendMessage(produceMessage(myId, "CREATE_NEW_TRANSACTION", transaction));
+      sendMessage(
+        produceMessage(Node.id, "CREATE_NEW_TRANSACTION", transaction)
+      );
       res.status(202).json({
         _message: "transaction send",
         transaction: transaction,

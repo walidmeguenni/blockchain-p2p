@@ -18,7 +18,7 @@ startWebSocketServer(server);
 server.listen(PORT, () => {
   console.log(shape);
   console.log(
-    `#----------Node Listening On Port http://localhost:${PORT}----------#`
+    `#----------Node Listening On Port http://localhost:${PORT}`
   );
   console.log("#");
   console.log("#");

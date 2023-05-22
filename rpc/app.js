@@ -32,6 +32,7 @@ app.use((req, res, next) => {
 app.use("/block", blockRouter);
 app.use("/mining", miningRouter);
 app.use("/wallet", walletRouter);
+app.use("/transaction", transactionRouter);
 
 //-----------------------------Handling errors---------------------//
 app.use((req, res, next) => {

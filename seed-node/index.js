@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 const { hasAvilablePeers, getAddressPeer } = require("./services");
 
-const senders = [{ peers: "ws://192.168.8.103:3002" }];
+const senders = [];
 
 let filteredAddresses;
 let portsender;
@@ -15,19 +15,19 @@ wss.on("connection", (ws, req) => {
 
   ws.on("message", async (message) => {
     console.log(`Received data from node ${senderIp}: ${message}`);
+    const { id, port } = JSON.parse(message);
+    portsender = port;
+    address = `ws://${senderIp}:${port}`;
 
-    portsender = message;
-    address = `ws://${senderIp}:${message}`;
-    const ipExists = senders.some((sender) => sender === address);
-
+    const ipExists = senders.some((sender) => sender.peers === address);
     if (hasAvilablePeers(senders)) {
-      if (!ipExists) {
-        if (senders.length >= 3) {
+      if (ipExists === false) {
+        if (senders.length > 3) {
           ws.send(JSON.stringify(senders.slice(-3)));
         } else {
           ws.send(JSON.stringify(senders));
         }
-        senders.push({ peers: address });
+        senders.push({ id: id, peers: address });
       } else {
         filteredAddresses = senders.filter(
           (addressIp) => addressIp !== address
@@ -39,14 +39,19 @@ wss.on("connection", (ws, req) => {
             ws.send(JSON.stringify(filteredAddresses));
           }
         } else {
-          ws.send("There is  no peer available for now, Try later ");
+          ws.send(
+            JSON.stringify("There is  no peer available for now, Try later ")
+          );
         }
       }
     } else {
-      ws.send("There is  no peer available for now, Try later ");
+      senders.push({ id: id, peers: address });
+      ws.send(
+        JSON.stringify("There is  no peer available for now, Try later ")
+      );
     }
 
-    console.log(senders);
+    console.table(senders);
     filteredAddresses = [];
   });
 
@@ -56,9 +61,11 @@ wss.on("connection", (ws, req) => {
 
   // Handle disconnects
   ws.on("close", () => {
-    senders.splice(senders.indexOf(address), 1);
-    console.log(`Disconnected from node : ${senderIp}:${portsender}`);
-    portsender = "";
+    const index = senders.findIndex((item) => item.peers.includes(address));
+    if (index != -1) {
+      senders.splice(index, 1);
+      console.log(`Disconnected from node : ${senderIp}:${portsender}`);
+    }
   });
 });
 
