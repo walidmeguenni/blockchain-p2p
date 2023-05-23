@@ -16,6 +16,8 @@ class Blockchain {
     this.confermidtransactions = [];
     this.database = new Database(PeerId);
     this.contracts = [];
+    this.transactionBroadcastCounts = [];
+    this.blockBroadcastCount = [];
   }
 
   createGenesisBlock() {
@@ -123,6 +125,34 @@ class Blockchain {
       prevBlock = currBlock;
     }
     return true;
+  }
+
+  countTransactionBroadcast(signature) {
+    const index = this.transactionBroadcastCounts.findIndex(
+      (item) => item.signature === signature
+    );
+    if (index !== -1) {
+      this.transactionBroadcastCounts[index].numberbroadcast++;
+    } else {
+      this.transactionBroadcastCounts.push({
+        signature: signature,
+        numberbroadcast: 1,
+      });
+    }
+  }
+
+  countBlockBroadcast(hash) {
+    const index = this.blockBroadcastCount.findIndex(
+      (item) => item.hash === hash
+    );
+    if (index !== -1) {
+      this.blockBroadcastCount[index].numberbroadcast++;
+    } else {
+      this.blockBroadcastCount.push({
+        hash: hash,
+        numberbroadcast: 1,
+      });
+    }
   }
 }
 

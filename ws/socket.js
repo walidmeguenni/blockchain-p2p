@@ -42,8 +42,14 @@ exports.startWebSocketServer = (server) => {
             return;
           }
           // Add the new block to your blockchain
-
+          const txnsToRemove = new Set(
+            newBlock.transactions.map((item) => item.signature)
+          );
+          Wmcoin.transactions = Wmcoin.transactions.filter(
+            (item) => !txnsToRemove.has(item.signature)
+          );
           Wmcoin.chain.push(newBlock);
+          Wmcoin;
           // sendMessage the new block message to all other peers
           // Wmcoin.difficulty = newDiff;
           sendMessage(
