@@ -23,7 +23,8 @@ exports.startWebSocketServer = (server) => {
         case "TYPE_HANDSHAKE":
           const nodes = data;
           neighbors.push(id, nodes);
-          nodes.forEach((node) => connect(node));
+          //nodes.forEach((node) => connect(node));
+          connect(Node.address)
           break;
         case "NEW_BLOCK":
           // Parse the new block object from the message payload
