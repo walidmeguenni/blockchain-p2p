@@ -1,9 +1,9 @@
 const WebSocket = require("ws");
 const EC = require("elliptic").ec;
-require("dotenv").config();
 
 const neighbors = require("../core/Neighbors");
 const { Node } = require("../core/Peer");
+const { METHOD_OF_SEND_MESSAGE } = require("../env");
 
 const ec = new EC("secp256k1");
 
@@ -63,7 +63,7 @@ exports.produceMessage = (id, type, data) => {
 };
 
 exports.sendMessage = (message) => {
-  switch (process.env.METHOD_OF_SEND_MESSAGE) {
+  switch (METHOD_OF_SEND_MESSAGE) {
     case "broadcast":
       broadcast(message, Node.openedPeers);
       break;

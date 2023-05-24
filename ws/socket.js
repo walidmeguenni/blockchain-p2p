@@ -4,6 +4,7 @@ const neighbors = require("../core/Neighbors");
 const { Blockchain, Wmcoin } = require("../core/main");
 const { sendMessage, produceMessage, connect } = require("../services");
 const { Node, Peer } = require("../core/Peer");
+const { METHOD_OF_SEND_MESSAGE } = require("../env");
 
 exports.startWebSocketServer = (server) => {
   const ws = new WebSocket.Server({ server });
@@ -23,7 +24,7 @@ exports.startWebSocketServer = (server) => {
         case "TYPE_HANDSHAKE":
           const nodes = data;
           neighbors.push(id, nodes);
-          if (process.env.METHOD_OF_SEND_MESSAGE === broadcast) {
+          if (METHOD_OF_SEND_MESSAGE === broadcast) {
             nodes.forEach((node) => connect(node));
           } else {
             const { address } = JSON.parse(message);

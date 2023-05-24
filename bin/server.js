@@ -3,11 +3,10 @@ const http = require("http");
 const { startApp } = require("../ws/connect");
 const { startWebSocketServer } = require("../ws/socket");
 const { shape } = require("../services");
-require("dotenv").config();
+const { PORT } = require("../env");
 
 startApp();
 
-const PORT = process.env.PORT;
 
 app.set("port", PORT);
 

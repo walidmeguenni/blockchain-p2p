@@ -1,7 +1,7 @@
 const os = require("os");
 const crypto = require("crypto");
 const WebSocket = require("ws");
-require("dotenv").config();
+const { PORT, SEED_NODE_ADDRESS } = require("../env");
 
 class Peer {
   constructor() {
@@ -19,7 +19,7 @@ class Peer {
       const iface = interfaces[name];
       for (const entry of iface) {
         if (entry.family === "IPv4" && !entry.internal) {
-          return `ws://${entry.address}:${process.env.PORT}`;
+          return `ws://${entry.address}:${PORT}`;
         }
       }
     }
@@ -38,15 +38,15 @@ class Peer {
 
   getPeers = () => {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(process.env.SEED_NODE_ADDRESS);
+      const ws = new WebSocket(SEED_NODE_ADDRESS);
 
       ws.addEventListener("open", () => {
         console.log(
-          `#----------Connected To Seed Node ${process.env.SEED_NODE_ADDRESS}`
+          `#----------Connected To Seed Node ${SEED_NODE_ADDRESS}`
         );
         const message = {
           id: this.id,
-          port: process.env.PORT,
+          port: PORT,
           type: "CONNECT_TO_NETWORK",
         };
         ws.send(JSON.stringify(message));
@@ -78,11 +78,11 @@ class Peer {
 
   getPeersNumbers = () => {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(process.env.SEED_NODE_ADDRESS);
+      const ws = new WebSocket(SEED_NODE_ADDRESS);
 
       ws.addEventListener("open", () => {
         console.log(
-          `#----------Connected To Seed Node ${process.env.SEED_NODE_ADDRESS}`
+          `#----------Connected To Seed Node ${SEED_NODE_ADDRESS}`
         );
         const message = {
           type: "GET_PEERS_NUMBER",
