@@ -39,21 +39,21 @@ exports.getStatistic = async (req, res) => {
       protocol: "Broadcast",
       dataPoints: [
         { nbrMsg: 0, messageCount: 0 },
-        { nbrMsg: 4, messageCount: nbrBroacastMsg },
+        { nbrMsg: nbrMsg, messageCount: nbrBroacastMsg },
       ],
     });
     statistic.push({
       protocol: "Gossip",
       dataPoints: [
         { nbrMsg: 0, messageCount: 0 },
-        { nbrMsg: 4, messageCount: 45 },
+        { nbrMsg: nbrMsg, messageCount: nbrGossipMsg },
       ],
     });
     statistic.push({
       protocol: "Olsr",
       dataPoints: [
         { nbrMsg: 0, messageCount: 0 },
-        { nbrMsg: 4, messageCount: 15 },
+        { nbrMsg: nbrMsg, messageCount: nbrOlsrMsg },
       ],
     });
   }
