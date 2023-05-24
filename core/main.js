@@ -15,7 +15,6 @@ class Blockchain {
     this.reward = 12;
     this.confermidtransactions = [];
     this.database = new Database(PeerId);
-    this.contracts = [];
     this.transactionBroadcastCounts = [];
     this.blockBroadcastCount = [];
   }

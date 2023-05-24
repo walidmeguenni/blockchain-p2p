@@ -7,6 +7,10 @@ class Peer {
   constructor() {
     this.address = this.setAddress();
     this.id = this.generateId();
+    this.openedPeers = [];
+    this.connectedPeers = [];
+    this.olsrPeers = [];
+    this.gossipPeers = [];
   }
 
   setAddress() {
@@ -40,7 +44,49 @@ class Peer {
         console.log(
           `#----------Connected To Seed Node ${process.env.SEED_NODE_ADDRESS}`
         );
-        const message = { id: this.id, port: process.env.PORT };
+        const message = {
+          id: this.id,
+          port: process.env.PORT,
+          type: "CONNECT_TO_NETWORK",
+        };
+        ws.send(JSON.stringify(message));
+      });
+
+      ws.addEventListener("message", (event) => {
+        console.log("#");
+        console.log("#");
+        console.log("#");
+        console.log("#");
+        console.log("#----------Received Data From Seed Node");
+        console.log("#");
+        console.log("#");
+        console.log("#");
+        console.log("#");
+        resolve(JSON.parse(event.data));
+      });
+
+      ws.addEventListener("error", (error) => {
+        console.error("Error connecting to server:", error);
+        reject(error);
+      });
+
+      ws.addEventListener("close", () => {
+        console.log("Disconnected from server");
+      });
+    });
+  };
+
+  getPeersNumbers = () => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket(process.env.SEED_NODE_ADDRESS);
+
+      ws.addEventListener("open", () => {
+        console.log(
+          `#----------Connected To Seed Node ${process.env.SEED_NODE_ADDRESS}`
+        );
+        const message = {
+          type: "GET_PEERS_NUMBER",
+        };
         ws.send(JSON.stringify(message));
       });
 

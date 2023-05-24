@@ -15,44 +15,59 @@ wss.on("connection", (ws, req) => {
 
   ws.on("message", async (message) => {
     console.log(`Received data from node ${senderIp}: ${message}`);
-    const { id, port } = JSON.parse(message);
-    portsender = port;
-    address = `ws://${senderIp}:${port}`;
+    const { type } = JSON.parse(message);
+    switch (type) {
+      case "CONNECT_TO_NETWORK":
+        const { id, port } = JSON.parse(message);
+        portsender = port;
+        address = `ws://${senderIp}:${port}`;
 
-    const ipExists = senders.some((sender) => sender.peers === address);
-    if (hasAvilablePeers(senders)) {
-      if (ipExists === false) {
-        if (senders.length > 3) {
-          ws.send(JSON.stringify(senders.slice(-3)));
-        } else {
-          ws.send(JSON.stringify(senders));
-        }
-        senders.push({ id: id, peers: address });
-      } else {
-        filteredAddresses = senders.filter(
-          (addressIp) => addressIp !== address
-        );
-        if (filteredAddresses.length !== 0) {
-          if (filteredAddresses.length >= 3) {
-            ws.send(JSON.stringify(filteredAddresses.slice(-3)));
+        const ipExists = senders.some((sender) => sender.peers === address);
+        if (hasAvilablePeers(senders)) {
+          if (ipExists === false) {
+            if (senders.length > 3) {
+              ws.send(JSON.stringify(senders.slice(-3)));
+            } else {
+              ws.send(JSON.stringify(senders));
+            }
+            senders.push({ id: id, peers: address });
           } else {
-            ws.send(JSON.stringify(filteredAddresses));
+            filteredAddresses = senders.filter(
+              (addressIp) => addressIp !== address
+            );
+            if (filteredAddresses.length !== 0) {
+              if (filteredAddresses.length >= 3) {
+                ws.send(JSON.stringify(filteredAddresses.slice(-3)));
+              } else {
+                ws.send(JSON.stringify(filteredAddresses));
+              }
+            } else {
+              ws.send(
+                JSON.stringify(
+                  "There is  no peer available for now, Try later "
+                )
+              );
+            }
           }
         } else {
+          senders.push({ id: id, peers: address });
           ws.send(
             JSON.stringify("There is  no peer available for now, Try later ")
           );
         }
-      }
-    } else {
-      senders.push({ id: id, peers: address });
-      ws.send(
-        JSON.stringify("There is  no peer available for now, Try later ")
-      );
-    }
+        console.table(senders);
+        filteredAddresses = [];
+        break;
+      case "GET_PEERS_NUMBER":
+        const nbrPeers = senders.length.toString();
+        console.log(nbrPeers);
+        ws.send(JSON.stringify(nbrPeers));
+        break;
 
-    console.table(senders);
-    filteredAddresses = [];
+      default:
+        console.log(`Unknown message type: ${type}`);
+        break;
+    }
   });
 
   ws.on("error", (err) => {

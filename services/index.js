@@ -5,13 +5,10 @@ require("dotenv").config();
 const neighbors = require("../core/Neighbors");
 const { Node } = require("../core/Peer");
 
-let openedPeers = [];
-let connectedPeers = [];
-
 const ec = new EC("secp256k1");
 
 exports.connect = async (address) => {
-  if (connectedPeers.includes(address) || address === Node.address) {
+  if (Node.connectedPeers.includes(address) || address === Node.address) {
     return; // already connected
   }
 
@@ -28,7 +25,8 @@ exports.connect = async (address) => {
     const message = {
       id: Node.id,
       type: "TYPE_HANDSHAKE",
-      data: [Node.address, ...connectedPeers],
+      data: [Node.address, ...Node.connectedPeers],
+      address: Node.address,
     };
     socket.send(JSON.stringify(message));
 
@@ -37,8 +35,8 @@ exports.connect = async (address) => {
     socket.send(JSON.stringify(requestChain));
     // Store socket and add to list of connected peers
     const peer = { address, socket };
-    openedPeers.push(peer);
-    connectedPeers.push(address);
+    Node.openedPeers.push(peer);
+    Node.connectedPeers.push(address);
     console.log("#");
     console.log("#");
     console.log("#");
@@ -46,8 +44,8 @@ exports.connect = async (address) => {
     console.log(`#----------New peer add to the List of Peers:${address}`);
     // Handle socket closing
     socket.addEventListener("close", () => {
-      openedPeers.splice(openedPeers.indexOf(peer), 1);
-      connectedPeers.splice(connectedPeers.indexOf(address), 1);
+      Node.openedPeers.splice(Node.openedPeers.indexOf(peer), 1);
+      Node.connectedPeers.splice(Node.connectedPeers.indexOf(address), 1);
     });
   } catch (error) {
     console.log("#");
@@ -67,7 +65,7 @@ exports.produceMessage = (id, type, data) => {
 exports.sendMessage = (message) => {
   switch (process.env.METHOD_OF_SEND_MESSAGE) {
     case "broadcast":
-      broadcast(message, openedPeers);
+      broadcast(message, Node.openedPeers);
       break;
     case "gossip":
       gossipProtocol(message);
@@ -87,27 +85,31 @@ const broadcast = (message, peers) => {
   });
 };
 function getRandomSubset(size = 30) {
-  const shuffled = openedPeers.sort(() => 0.5 - Math.random());
-  const nbrPeers = Math.ceil((openedPeers.length * size) / 100);
-  return shuffled.slice(0, nbrPeers);
+  if (Node.openedPeers.length > 3) {
+    const shuffled = Node.openedPeers.sort(() => 0.5 - Math.random());
+    const nbrPeers = Math.ceil((Node.openedPeers.length * size) / 100);
+    Node.gossipPeers = shuffled.slice(0, nbrPeers);
+  } else {
+    Node.gossipPeers = Node.openedPeers;
+  }
 }
 const gossipProtocol = (message, numRounds = 5) => {
   for (let index = 0; index < numRounds; index++) {
-    const gossipPeers = getRandomSubset();
+    getRandomSubset();
     // Send the message to the selected peers
-    broadcast(message, gossipPeers);
+    broadcast(message, Node.gossipPeers);
   }
 };
 
 const olsrProtocol = (message) => {
   const { id } = message;
-  const olsrPeers = getOlsrPeers(id);
+  getOlsrPeers(id);
   // Send the message to the selected peers
-  broadcast(message, olsrPeers);
+  broadcast(message, Node.olsrPeers);
 };
 
 const getOlsrPeers = (id) => {
-  let olsrPeers = [];
+  let selectedPeers = [];
   let targetedPeers = [];
   let listPeersNeighbors = neighbors.get();
   listPeersNeighbors.map((peer) => {
@@ -117,16 +119,16 @@ const getOlsrPeers = (id) => {
     }
   });
   if (targetedPeers.length !== 0) {
-    openedPeers.map((item) => {
+    Node.openedPeers.map((item) => {
       const status = targetedPeers.some(
         (value) => item.address !== value.peers
       );
       if (!status) {
-        olsrPeers.push(item);
+        selectedPeers.push(item);
       }
     });
   }
-  return olsrPeers;
+  Node.olsrPeers = selectedPeers;
 };
 
 exports.signTranasction = (from, privateKey) => {

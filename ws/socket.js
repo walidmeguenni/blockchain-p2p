@@ -23,8 +23,12 @@ exports.startWebSocketServer = (server) => {
         case "TYPE_HANDSHAKE":
           const nodes = data;
           neighbors.push(id, nodes);
-          //nodes.forEach((node) => connect(node));
-          connect(Node.address)
+          if (process.env.METHOD_OF_SEND_MESSAGE === broadcast) {
+            nodes.forEach((node) => connect(node));
+          } else {
+            const { address } = JSON.parse(message);
+            connect(address);
+          }
           break;
         case "NEW_BLOCK":
           // Parse the new block object from the message payload
@@ -50,7 +54,7 @@ exports.startWebSocketServer = (server) => {
             (item) => !txnsToRemove.has(item.signature)
           );
           Wmcoin.chain.push(newBlock);
-          Wmcoin;
+
           // sendMessage the new block message to all other peers
           // Wmcoin.difficulty = newDiff;
           sendMessage(
@@ -64,6 +68,9 @@ exports.startWebSocketServer = (server) => {
         case "CREATE_NEW_TRANSACTION":
           // Handle new transaction message
           const transaction = Wmcoin.addTransaction(data);
+          sendMessage(
+            produceMessage(Node.id, "CREATE_NEW_TRANSACTION", transaction)
+          );
           break;
         case "GET_CHAIN":
           // Handle request for blockchain

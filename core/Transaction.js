@@ -34,6 +34,14 @@ class Transaction {
       );
       return false;
     }
+    const index = chain.transactions.findIndex(
+      (transaction) => transaction.signature === signature
+    );
+
+    if (index === 1) {
+      console.log("Invalid transaction: transaction already available");
+      return false;
+    }
     return true;
   }
 }

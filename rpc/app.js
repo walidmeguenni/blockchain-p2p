@@ -8,6 +8,7 @@ const blockRouter = require("./routes/block");
 const miningRouter = require("./routes/mining");
 const transactionRouter = require("./routes/transaction");
 const walletRouter = require("./routes/wallet");
+const monitorRouter = require("./routes/monitor");
 
 //-----------------------------middleware-----------------------------//
 
@@ -33,6 +34,7 @@ app.use("/block", blockRouter);
 app.use("/mining", miningRouter);
 app.use("/wallet", walletRouter);
 app.use("/transaction", transactionRouter);
+app.use("/monitor", monitorRouter);
 
 //-----------------------------Handling errors---------------------//
 app.use((req, res, next) => {
